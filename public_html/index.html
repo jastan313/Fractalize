@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Fractalize</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">@import url("style.css")</style>
+    </head>
+    <body>
+        <h1>FRACTALIZE</h1>
+        <h2 id="testoutput">Generate, Explore, and Share!</h2>
+        <div id="option-container">
+            <div class="generator-option">
+                <p>TYPE</p>
+                <div class="generator-option-value">
+                    <select id="type_opt">
+                        <option value="MANDELBROT">MANDELBROT</option>
+                        <option value="MANDELBROT">T</option>
+                    </select>
+                </div>
+            </div>
+            <div class="generator-option">
+                <p>ITERATIONS</p>
+                <input id="iterations_opt" type="number" min="10" max="10000" placeholder="10 <= ? <= 10000">
+            </div>
+            <div class="generator-option">
+                <p>VALIDITY THRESHOLD</p>
+                <input id="validity_threshold_opt" type="number" min="1" max="100" placeholder="1 <= ? <= 100">
+            </div>
+            <div class="generator-option">
+                <p>COLOR 1</p>
+                <input id="color1_opt" type="color" value="#990000">
+            </div>
+            <div class="generator-option">
+                <p>COLOR 2</p>
+                <input id="color2_opt" type="color" value="#990000">
+            </div>
+            <div class="generator-option">
+                <p>COLOR 3</p>
+                <input id="color3_opt" type="color" value="#990000">
+            </div>
+        </div>
+        <div id="canvas-container">
+            <canvas id="fractal-canvas" width="600" height="400"></canvas>
+        </div>
+        <div id="share-container">
+            <div id="create_link_button">GENERATE AND COPY LINK</div>
+            <textarea id="link_text" readonly placeholder="CREATE A SHAREABLE LINK"></textarea>
+        </div>
+        <div id="footer"><a href="http://jastan313.github.io/Portfolio">Jason Tan, 2017</a></div>
+    </body>
+    <script type="text/javascript" src="fractal_generator.js"></script>
+</html>

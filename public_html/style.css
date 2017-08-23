@@ -1,0 +1,173 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Aug 22, 2017, 3:22:42 PM
+    Author     : Jason Tan
+*/
+
+::selection {
+  background: #330000;
+  color:white;
+}
+::-moz-selection {
+    background: #330000;
+  color:white;
+}
+
+html, body {
+    margin: 2px;
+    overflow: hidden;
+    text-align: center; 
+    background-image: url("fractal_bg.jpg");
+    background-size: 100vw 100vh;
+    background-color: white;
+    font-family: "Arial Black", Gadget, sans-serif;
+}
+
+h1, h2 {
+    border-top: 5px black ridge;
+    border-bottom: 5px red ridge;
+    background-color: white;
+    font-weight: bold;
+    color: #990000;
+    width: 100%;
+    height: 100%;
+    padding: 1px;
+}
+
+h1 {
+    font-size: 30pt;
+}
+
+#footer{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 2px;
+}
+
+a {
+    color: white;
+}
+
+h2 {
+    font-size: 15pt;
+}
+
+#option-container {
+    width: 100%;
+}
+
+.generator-option {
+    display: inline-block;
+    margin-left: 10px;
+    min-width: 200px;
+    width: 10%;
+}
+
+p {
+    text-align: center;
+    min-height: 5px;
+    font-size: 13pt;
+    font-weight: bold;
+    background-color: white;
+    border: 4px black ridge;
+    border-bottom: 4px #990000 ridge;
+    margin-bottom: 10px;
+    padding: 0;
+}
+
+input, select {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    text-align: center;
+    width: 150px;
+    height: 25px;
+}
+
+input[type=number] { 
+  -moz-appearance: textfield;
+  appearance: textfield;
+  margin: 0;
+  cursor: inherit;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+}
+
+input:hover, select:hover, select option:hover {
+     outline: 5px outset #990000;
+}
+
+#canvas-container {
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#fractal-canvas {
+    background-color: white;
+    margin: 5px;
+    border: 7px #990000 ridge;
+}
+
+#fractal-canvas:hover {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: -moz-grab;
+    cursor: -webkit-grab; 
+    cursor: grab;
+}
+
+ /* (Optional) Apply a "closed-hand" cursor during drag operation. */
+#fractal-canvas:active{ 
+    cursor: grabbing;
+}
+
+#create_link_button {
+    display: inline-block;
+    padding: 5px;
+    margin-left: 10px;
+    min-width: 340px;
+    width: 10%;
+    background-color: white;
+    border: 6px black ridge;
+    border-bottom: 6px #990000 ridge;
+    font-weight: bold;
+    font-size: 17pt;
+    color: #990000;
+    margin-bottom: 10px;
+}
+
+#create_link_button:hover {
+    cursor: pointer;
+    border: 6px #990000 ridge;
+}
+
+#link_text {
+    width: 90%;
+    padding: 1px;
+    height: 32px;
+    background: #999999;
+    border: 4px black inset;
+    border-bottom: 4px #990000 inset;
+    font-size: 20pt;
+    text-align: center;
+    font-weight: bold;
+    color: #660000;
+    font-style: italic;
+}
+
+
+a:hover {
+    cursor: pointer;
+    color: #990000;
+}
