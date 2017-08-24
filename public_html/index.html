@@ -19,18 +19,18 @@ and open the template in the editor.
                 <p>TYPE</p>
                 <div class="generator-option-value">
                     <select id="type_opt">
-                        <option value="MANDELBROT">MANDELBROT</option>
-                        <option value="MANDELBROT">T</option>
+                        <option value="1" selected="selected">MANDELBROT</option>
+                        <option value="2">T</option>
                     </select>
                 </div>
             </div>
             <div class="generator-option">
                 <p>ITERATIONS</p>
-                <input id="iterations_opt" type="number" min="10" max="10000" placeholder="10 <= ? <= 10000">
+                <input id="iterations_opt" type="number" min="10" max="5000" value="30" placeholder="10 <= ? <= 5000">
             </div>
             <div class="generator-option">
                 <p>VALIDITY THRESHOLD</p>
-                <input id="validity_threshold_opt" type="number" min="1" max="100" placeholder="1 <= ? <= 100">
+                <input id="validity_threshold_opt" type="number" min="1" max="1000" value="5" placeholder="1 <= ? <= 1000">
             </div>
             <div class="generator-option">
                 <p>COLOR 1</p>
@@ -38,18 +38,18 @@ and open the template in the editor.
             </div>
             <div class="generator-option">
                 <p>COLOR 2</p>
-                <input id="color2_opt" type="color" value="#990000">
+                <input id="color2_opt" type="color" value="#000000">
             </div>
             <div class="generator-option">
                 <p>COLOR 3</p>
-                <input id="color3_opt" type="color" value="#990000">
+                <input id="color3_opt" type="color" value="#ffffff">
             </div>
         </div>
         <div id="canvas-container">
-            <canvas id="fractal-canvas" width="600" height="400"></canvas>
+            <canvas id="fractal-canvas" width="400" height="400"></canvas>
         </div>
         <div id="share-container">
-            <div id="create_link_button">GENERATE AND COPY LINK</div>
+            <div id="create_link_button" ><div id="create_link_button_text"></div></div>
             <textarea id="link_text" readonly placeholder="CREATE A SHAREABLE LINK"></textarea>
         </div>
         <div id="footer"><a href="http://jastan313.github.io/Portfolio">Jason Tan, 2017</a></div>
