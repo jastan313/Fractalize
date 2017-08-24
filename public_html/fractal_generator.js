@@ -5,12 +5,18 @@
  */
 var fractalOption = {
     MANDELBROT: "1",
-    T: "2"
+    SIERPINSKI_CARPET: "2"
 };
 var mandelbrotDefault = {
     CANVAS_X: 2.44,
-    CANVAS_Y: 1.033,
+    CANVAS_Y: 1.98,
     ZOOM: 97
+};
+
+var sierpinskiCarpetDefault = {
+    CANVAS_X: 20,
+    CANVAS_Y: 20,
+    ZOOM: 1
 };
 
 var canvasX = 0;
@@ -121,18 +127,18 @@ function gradientColorConversion(c1, c2, percentage) {
 }
 
 function chooseColor(percentage) {
-    if(percentage == 0) return color1_opt.value;
-    else if(percentage <= .5) {
+    if (percentage == 0)
+        return color1_opt.value;
+    else if (percentage <= .5) {
         return gradientColorConversion(color1_opt.value,
-            color2_opt.value, 2*percentage);
-    }
-    else {
+                color2_opt.value, 2 * percentage);
+    } else {
         return gradientColorConversion(color2_opt.value,
-            color3_opt.value, 2*percentage-1);
+                color3_opt.value, 2 * percentage - 1);
     }
 }
 
-function checkInMandelbrotSet(x, y) {
+function checkInMandelbrot(x, y) {
     var realComponent = x;
     var imaginaryComponent = y;
     for (var i = 0; i < iterations_opt.value; i++) {
@@ -147,29 +153,51 @@ function checkInMandelbrotSet(x, y) {
     return 0;
 }
 
-function generateFractal() {
-    create_link_button_text.style.color = "#444444";
-    create_link_button_text.innerHTML = "LOADING...";
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    
+function generateMandelbrot() {
     var error_percentage = 0;
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {
-            switch (type_opt.value) {
-                case fractalOption.MANDELBROT:
-                    error_percentage = checkInMandelbrotSet(x/zoom - canvasX, 
-                        y/zoom - canvasY);
-                    break;
-                default:
-                    error_percentage = checkInMandelbrotSet(x / zoom - canvasX,
-                            y / zoom - canvasY);
-                    break;
-            }
+            error_percentage = checkInMandelbrot(x/zoom - canvasX, y/zoom - canvasY);
             context.fillStyle = chooseColor(error_percentage);
             context.fillRect(x, y, 1, 1);
         }
     }
+}
 
+function generateSierpinskiCarpet(x, y, length, iterations) {
+    var percentage = iterations/iterations_opt.value;
+    context.fillStyle = chooseColor(percentage);
+    console.log((canvas.width/iterations_opt.value));
+    var subLength = length / (canvas.width/iterations_opt.value);
+    context.fillRect(x + subLength, y + subLength, subLength - 1, subLength - 1);
+    if (subLength > (canvas.width/iterations_opt.value)) {
+        generateSierpinskiCarpet(x, y, subLength, iterations-1);
+        generateSierpinskiCarpet(x + subLength, y, subLength, iterations-1);
+        generateSierpinskiCarpet(x + 2 * subLength, y, subLength, iterations-1);
+        generateSierpinskiCarpet(x, y + subLength, subLength, iterations-1);
+        generateSierpinskiCarpet(x + 2 * subLength, y + subLength, subLength, iterations-1);
+        generateSierpinskiCarpet(x, y + 2 * subLength, subLength, iterations-1);
+        generateSierpinskiCarpet(x + subLength, y + 2 * subLength, subLength, iterations-1);
+        generateSierpinskiCarpet(x + 2 * subLength, y + 2 * subLength, subLength, iterations-1);
+    }
+}
+
+function generateFractal() {
+    create_link_button_text.style.color = "#444444";
+    create_link_button_text.innerHTML = "LOADING...";
+    
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    switch (type_opt.value) {
+        case fractalOption.MANDELBROT:
+            generateMandelbrot();
+            break;
+        case fractalOption.SIERPINSKI_CARPET:
+            generateSierpinskiCarpet(0,0, canvas.width, iterations_opt.value);
+            break;
+        default:
+            break;
+    }
+    
     create_link_button_text.classList.add('pre-animation');
     setTimeout(function () {
         create_link_button_text.style.color = "#990000";
@@ -213,8 +241,8 @@ function createLink() {
         generateFractal();
     };
     iterations_opt.onchange = function() {
-        if(iterations_opt.value < 10) iterations_opt.value = 10;
-        if(iterations_opt.value > 5000) iterations_opt.value = 5000;
+        if(iterations_opt.value < 1) iterations_opt.value = 1;
+        if(iterations_opt.value > 2000) iterations_opt.value = 2000;
         generateFractal();
     };
     validity_threshold_opt.onchange = function() {
@@ -250,7 +278,7 @@ function createLink() {
             clickX = e.clientX;
             clickY = e.clientY;
         }
-        //printVars(e);
+        printVars(e);
     });
     canvas.addEventListener("mousewheel", function(e) {
         zoomCanvas(e);
@@ -283,8 +311,16 @@ function createLink() {
                 canvasY = mandelbrotDefault.CANVAS_Y;
                 zoom = mandelbrotDefault.ZOOM;
                 break;
+            case fractalOption.SIERPINSKI_CARPET:
+                canvasX = sierpinskiCarpetDefault.CANVAS_X;
+                canvasY = sierpinskiCarpetDefault.CANVAS_Y;
+                zoom = sierpinskiCarpetDefault.ZOOM;
+                break;
             default:
-                generateMandelbrotSet();
+                canvasX = mandelbrotDefault.CANVAS_X;
+                canvasY = mandelbrotDefault.CANVAS_Y;
+                zoom = mandelbrotDefault.ZOOM;
+                break;
         }
     }
     generateFractal();
