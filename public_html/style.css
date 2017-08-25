@@ -50,10 +50,6 @@ h1 {
     padding: 2px;
 }
 
-a {
-    color: white;
-}
-
 h2 {
     font-size: 15pt;
 }
@@ -64,7 +60,7 @@ h2 {
 
 .generator-option {
     display: inline-block;
-    margin-left: 10px;
+    margin-right: 10px;
     min-width: 200px;
     width: 10%;
 }
@@ -136,9 +132,7 @@ input:hover, select:hover, select option:hover {
 #create_link_button {
     display: inline-block;
     padding: 5px;
-    margin-left: 10px;
     min-width: 340px;
-    width: 10%;
     background-color: white;
     border: 6px black ridge;
     border-bottom: 6px #990000 ridge;
@@ -146,7 +140,7 @@ input:hover, select:hover, select option:hover {
     transition:  background-color 0.3s ease-out;
 }
 
-#create_link_button:hover {
+#create_link_button:hover{
     cursor: pointer;
     border: 6px #990000 inset;
     background-color: black;
@@ -176,7 +170,6 @@ input:hover, select:hover, select option:hover {
     padding-top: 8px;
     max-height: 28px;
     min-height: 28px;
-    height: auto;
     background: #999999;
     border: 4px black inset;
     border-bottom: 4px #990000 inset;
@@ -188,6 +181,33 @@ input:hover, select:hover, select option:hover {
     font-family: monospace;
     text-decoration: underline;
     resize: none;
+    margin-bottom: 20px;
+}
+
+#copy_button {
+    display: inline-block;
+    width: 150px;
+    background-color: white;
+    border: 4px black ridge;
+    border-top: 4px #990000 ridge;
+    margin-bottom: 10px;
+    transition:  background-color 0.3s ease-out;
+    margin-left: 30%;
+    margin-right: 30%;
+    color: #990000;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#copy_button:hover {
+    cursor: pointer;
+    border: 4px #990000 inset;
+    background-color: black;
+    transition:  background-color 0.1s ease-out;
+}
+
+a {
+    color: white;
 }
 
 a:hover {
