@@ -19,8 +19,12 @@ and open the template in the editor.
                 <p>TYPE</p>
                 <div class="generator-option-value">
                     <select id="type_opt">
-                        <option value="1" selected="selected">MANDELBROT</option>
-                        <option value="2">SIERPINSKI CARPET</option>
+                        <option value="1" selected="selected">MANDELBROT SET</option>
+                        <option value="2">BURNING SHIP</option>
+                        <option value="3">JULIET SET</option>
+                        <option value="4">B</option>
+                        <option value="5">C</option>
+                        <option value="6">D</option>
                     </select>
                 </div>
             </div>
@@ -30,7 +34,15 @@ and open the template in the editor.
             </div>
             <div class="generator-option">
                 <p>VALIDITY THRESHOLD</p>
-                <input id="validity_threshold_opt" type="number" min="1" max="1000" value="5" placeholder="1 <= ? <= 1000">
+                <input id="validity_threshold_opt" type="number" min="1" max="1000" value="25" placeholder="1 <= ? <= 1000">
+            </div>
+            <div class="generator-option opt_hidden" id="juliet_x_opt_container">
+                <p>X COMPONENT</p>
+                <input id="juliet_x_opt" type="number" min="-1.7" max="0.7" step="0.001" value="0.4" placeholder="-1.7 <= ? <= 0.7">
+            </div>
+            <div class="generator-option opt_hidden" id="juliet_y_opt_container">
+                <p>Y COMPONENT</p>
+                <input id="juliet_y_opt" type="number" min="-1" max="1" step="0.001" value="-0.1" placeholder="-1 <= ? <= 1">
             </div>
             <div class="generator-option">
                 <p>COLOR 1</p>
