@@ -54,15 +54,17 @@ h2 {
     font-size: 15pt;
 }
 
-#option-container {
+#option_container {
     width: 100%;
+    margin: 0 auto;
 }
 
-.generator-option {
+.generator_option {
     display: inline-block;
-    margin-right: 10px;
-    min-width: 200px;
-    width: 10%;
+    margin-left: 12px;
+    margin-right: 12px;
+    min-width: 220px;
+    width: 8%;
 }
 
 .opt_hidden {
@@ -77,7 +79,7 @@ p {
     background-color: white;
     border: 4px black ridge;
     border-bottom: 4px #990000 ridge;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     padding: 0;
 }
 
@@ -108,20 +110,18 @@ input:hover, select:hover, select option:hover {
      transition:  outline .05s ease-in;
 }
 
-#canvas-container {
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+#canvas_container {
+    padding-top: 10px;
+    margin-top: 25px;
     text-align: center;
 }
 
-#fractal-canvas {
+#fractal_canvas {
     background-color: white;
-    margin: 5px;
     border: 7px #990000 ridge;
 }
 
-#fractal-canvas:hover {
+#fractal_canvas:hover {
     cursor: move; /* fallback if grab cursor is unsupported */
     cursor: -moz-grab;
     cursor: -webkit-grab; 
@@ -129,18 +129,59 @@ input:hover, select:hover, select option:hover {
 }
 
  /* (Optional) Apply a "closed-hand" cursor during drag operation. */
-#fractal-canvas:active{ 
+#fractal_canvas:active{ 
     cursor: grabbing;
 }
 
+#save_name {
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 5px;
+    width: 400px;
+    font-family: monospace;
+    font-size: 14pt;
+}
+
+#save_name:hover {
+    cursor: text;
+    outline: 3px outset #990000;
+    transition:  outline .05s ease-in;
+}
+
+#save_button {
+    display: block;
+    margin: 0 auto;
+    width: 150px;
+    background-color: white;
+    border: 4px black ridge;
+    border-top: 4px #990000 ridge;
+    margin-bottom: 10px;
+    transition:  background-color 0.3s ease-out;
+    color: #990000;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#save_button:hover {
+    cursor: pointer;
+    border: 4px #990000 inset;
+    background-color: black;
+    transition:  background-color 0.1s ease-out;
+}
+
+#share_container {
+    margin-top: 25px;
+}
+
 #create_link_button {
-    display: inline-block;
+    display: block;
+    margin: 0 auto;
     padding: 5px;
-    min-width: 340px;
+    max-width: 350px;
     background-color: white;
     border: 6px black ridge;
     border-bottom: 6px #990000 ridge;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     transition:  background-color 0.3s ease-out;
 }
 
@@ -186,28 +227,6 @@ input:hover, select:hover, select option:hover {
     text-decoration: underline;
     resize: none;
     margin-bottom: 20px;
-}
-
-#copy_button {
-    display: inline-block;
-    width: 150px;
-    background-color: white;
-    border: 4px black ridge;
-    border-top: 4px #990000 ridge;
-    margin-bottom: 10px;
-    transition:  background-color 0.3s ease-out;
-    margin-left: 30%;
-    margin-right: 30%;
-    color: #990000;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-#copy_button:hover {
-    cursor: pointer;
-    border: 4px #990000 inset;
-    background-color: black;
-    transition:  background-color 0.1s ease-out;
 }
 
 a {

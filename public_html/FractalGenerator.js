@@ -30,7 +30,7 @@ var canvasX = 0;
 var canvasY = 0;
 var zoom = 0;
 
-var canvas = document.getElementById("fractal-canvas");
+var canvas = document.getElementById("fractal_canvas");
 var context = canvas.getContext("2d");
 var para = document.getElementById("testoutput");
 var type_opt = document.getElementById("type_opt");
@@ -43,10 +43,11 @@ var juliet_y_opt = document.getElementById("juliet_y_opt");
 var color1_opt = document.getElementById("color1_opt");
 var color2_opt = document.getElementById("color2_opt");
 var color3_opt = document.getElementById("color3_opt");
+var save_name = document.getElementById("save_name");
+var save_button = document.getElementById("save_button");
 var create_link_button = document.getElementById("create_link_button");
 var create_link_button_text = document.getElementById("create_link_button_text");
 var link_text = document.getElementById("link_text");
-var copy_button = document.getElementById("copy_button");
 
 var clickX = 0;
 var clickY = 0;
@@ -427,9 +428,19 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     create_link_button.onclick = function () {
         createLink();
     };
-    copy_button.onclick = function () {
+    save_button.onclick = function () {
+        var name;
+        if (save_name.value.length === 0) {
+            name = generateRandomName(Math.floor((Math.random() * 12) + 5));
+        } else {
+            name = save_name.value.replace(/[^a-z0-9]/gi, '_')
+                    .replace(/^_+|\_+$/g, '')
+                    .replace(/_{2,}/g, '_').toLowerCase();
+            if (name.length === 0) {
+                name = generateRandomName(Math.floor((Math.random() * 12) + 5));
+            }
+        }
         canvas.toBlob(function (blob) {
-            var name = generateRandomName(Math.floor((Math.random()*12)+5));
             saveAs(blob, name + ".png");
         });
     }

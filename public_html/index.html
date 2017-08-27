@@ -14,10 +14,10 @@ and open the template in the editor.
     <body>
         <h1>FRACTALIZE</h1>
         <h2 id="testoutput">Generate, Explore, and Share!</h2>
-        <div id="option-container">
-            <div class="generator-option">
+        <div id="option_container">
+            <div class="generator_option">
                 <p>TYPE</p>
-                <div class="generator-option-value">
+                <div class="generator_option_value">
                     <select id="type_opt">
                         <option value="1" selected="selected">MANDELBROT SET</option>
                         <option value="2">BURNING SHIP</option>
@@ -28,42 +28,43 @@ and open the template in the editor.
                     </select>
                 </div>
             </div>
-            <div class="generator-option">
+            <div class="generator_option">
                 <p id="iterations_p">ITERATIONS</p>
                 <input id="iterations_opt" type="number" min="1" max="2000" value="10" placeholder="1 <= ? <= 2000">
             </div>
-            <div class="generator-option">
+            <div class="generator_option">
                 <p>VALIDITY THRESHOLD</p>
                 <input id="validity_threshold_opt" type="number" min="1" max="1000" value="25" placeholder="1 <= ? <= 1000">
             </div>
-            <div class="generator-option opt_hidden" id="juliet_x_opt_container">
+            <div class="generator_option opt_hidden" id="juliet_x_opt_container">
                 <p>X COMPONENT</p>
                 <input id="juliet_x_opt" type="number" min="-1.7" max="0.7" step="0.001" value="0.4" placeholder="-1.7 <= ? <= 0.7">
             </div>
-            <div class="generator-option opt_hidden" id="juliet_y_opt_container">
+            <div class="generator_option opt_hidden" id="juliet_y_opt_container">
                 <p>Y COMPONENT</p>
                 <input id="juliet_y_opt" type="number" min="-1" max="1" step="0.001" value="-0.1" placeholder="-1 <= ? <= 1">
             </div>
-            <div class="generator-option">
+            <div class="generator_option">
                 <p>COLOR 1</p>
                 <input id="color1_opt" type="color" value="#990000">
             </div>
-            <div class="generator-option">
+            <div class="generator_option">
                 <p>COLOR 2</p>
                 <input id="color2_opt" type="color" value="#000000">
             </div>
-            <div class="generator-option">
+            <div class="generator_option">
                 <p>COLOR 3</p>
                 <input id="color3_opt" type="color" value="#ffffff">
             </div>
         </div>
-        <div id="canvas-container">
-            <canvas id="fractal-canvas" width="400" height="400"></canvas>
+        <div id="canvas_container">
+            <canvas id="fractal_canvas" width="400" height="400"></canvas>
         </div>
-        <div id="share-container">
+        <input id="save_name" type="text" placeholder="ENTER (ALPHANUMERIC) FILENAME">
+        <div id="save_button" >SAVE IMAGE</div>
+        <div id="share_container">
             <div id="create_link_button" ><div id="create_link_button_text"></div></div>
             <textarea id="link_text" readonly placeholder="CREATE A SHAREABLE LINK"></textarea>
-            <div id="copy_button" >SAVE IMAGE</div>
         </div>
         <div id="footer"><a href="http://jastan313.github.io/Portfolio">Jason Tan, 2017</a></div>
         <script type="text/javascript" src="FractalGenerator.js"></script>
