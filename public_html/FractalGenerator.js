@@ -11,19 +11,23 @@ var fractalOption = {
 var mandelbrotSetDefault = {
     CANVAS_X: 2.2,
     CANVAS_Y: 1.5,
-    ZOOM: 129.3
+    ZOOM: 129.3,
+    ITERATIONS: 10
 };
 
 var burningShipDefault = {
     CANVAS_X: 2.1,
     CANVAS_Y: 2.1,
-    ZOOM: 120
+    ZOOM: 120,
+    ITERATIONS: 10
+    
 };
 
 var julietSetDefault = {
-    CANVAS_X: 1.60,
-    CANVAS_Y: 1.60,
-    ZOOM: 125
+    CANVAS_X: 1.35,
+    CANVAS_Y: 1.35,
+    ZOOM: 150,
+    ITERATIONS: 25
 };
 
 var canvasX = 0;
@@ -94,9 +98,9 @@ function moveCanvas(e) {
     clickY = parseFloat(e.clientY);
 }
 
+// !important maybe add other zoom scales for each type
 function zoomCanvas(zoomDirection) {
     var zoomDelta = Math.sqrt(zoom);
-    
     switch(type_opt.value){
         case fractalOption.MANDELBROT_SET:
             zoomDelta = 10 + 0.058827625*zoom + .0925943e-9*zoom*zoom;
@@ -157,16 +161,19 @@ function selectDefaults() {
             canvasX = mandelbrotSetDefault.CANVAS_X;
             canvasY = mandelbrotSetDefault.CANVAS_Y;
             zoom = mandelbrotSetDefault.ZOOM;
+            iterations_opt.value = mandelbrotSetDefault.ITERATIONS;
             break;
         case fractalOption.BURNING_SHIP:
             canvasX = burningShipDefault.CANVAS_X;
             canvasY = burningShipDefault.CANVAS_Y;
             zoom = burningShipDefault.ZOOM;
+            iterations_opt.value = burningShipDefault.ITERATIONS;
             break;
         case fractalOption.JULIET_SET:
             canvasX = julietSetDefault.CANVAS_X;
             canvasY = julietSetDefault.CANVAS_Y;
             zoom = julietSetDefault.ZOOM;
+            iterations_opt.value = julietSetDefault.ITERATIONS;
             break;
         default:
             canvasX = mandelbrotSetDefault.CANVAS_X;
@@ -271,7 +278,9 @@ function generateJulietSet() {
     var error_percentage = 0;
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {
-            error_percentage = checkInJulietSet(x/zoom - canvasX, y/zoom - canvasY, juliet_x_opt.value, juliet_y_opt.value);
+            error_percentage = checkInJulietSet(x / zoom - canvasX, y / zoom - canvasY,
+                    parseFloat(juliet_x_opt.value),
+                    parseFloat(juliet_y_opt.value));
             context.fillStyle = chooseColor(error_percentage);
             context.fillRect(x, y, 1, 1);
         }
@@ -309,11 +318,17 @@ function createLink() {
     create_link_button_text.classList.add("pre-animation");
     create_link_button_text.style.color = "#444444";
     create_link_button_text.innerHTML = "GENERATING AND COPYING...";
+    var juliet_opt = "";
+    if(type_opt.value == fractalOption.JULIET_SET) {
+        juliet_opt = "&juliet_x=" + juliet_x_opt.value
+                + "&juliet_y=" + juliet_y_opt.value;
+    }
     var link = window.location.href.split('?')[0] +
             "?shared=1" +
             "&type=" + type_opt.value + 
             "&iterations=" + iterations_opt.value +
             "&validity_threshold=" + validity_threshold_opt.value +
+            juliet_opt +
             "&color1=" + color1_opt.value.substring(1,color1_opt.value.length) +
             "&color2=" + color2_opt.value.substring(1,color1_opt.value.length) +
             "&color3=" + color3_opt.value.substring(1,color1_opt.value.length) +
@@ -361,6 +376,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
             iterations_opt.value = 1;
         if (iterations_opt.value > 2000)
             iterations_opt.value = 2000;
+        iterations_opt.value = Math.round(iterations_opt.value);
         generateFractal();
     };
     validity_threshold_opt.onchange = function () {
@@ -368,6 +384,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
             validity_threshold_opt.value = 1;
         if (validity_threshold_opt.value > 1000)
             validity_threshold_opt.value = 1000;
+        validity_threshold_opt.value = Math.round(validity_threshold_opt.value);
         generateFractal();
     };
     juliet_x_opt.onchange = function () {
@@ -446,8 +463,13 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     }
     if (getURLParameter("shared")) {
             type_opt.value = getURLParameter("type");
+            changeTypeOptions();
             iterations_opt.value = parseInt(getURLParameter("iterations"));
             validity_threshold_opt.value = parseInt(getURLParameter("validity_threshold"));
+            if(type_opt.value == fractalOption.JULIET_SET) {
+                juliet_x_opt.value = parseFloat(getURLParameter("juliet_x"));
+                juliet_y_opt.value = parseFloat(getURLParameter("juliet_y"));
+            }
             color1_opt.value = '#' + getURLParameter("color1");
             color2_opt.value = '#' + getURLParameter("color2");
             color3_opt.value = '#' + getURLParameter("color3");
