@@ -74,6 +74,33 @@ function printVars(e) {
             "color3: " + color3_opt.value;  
 }
 
+function fractalLoading() {
+    create_link_button_text.style.color = "#444444";
+    create_link_button_text.innerHTML = "LOADING...";
+}
+
+function debounce(delay, callback, accumulateData) {
+    var timeout = null;
+    var theData = [];
+    return function () {
+        if (accumulateData) {
+            var arr = [];
+            for (var i = 0; i < arguments.length; ++i)
+                arr.push(arguments[i]);
+            theData.push(arr);
+        }
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        var args = arguments;
+        timeout = setTimeout(function () {
+            callback.apply((accumulateData) ? { data: theData } : null, args);
+            theData = []; // clear the data array
+            timeout = null;
+        }, delay);
+    };
+}
+
 function getURLParameter(name) {
     var url = window.location.href;
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -99,16 +126,16 @@ function moveCanvas(e) {
 }
 
 // !important maybe add other zoom scales for each type
-function zoomCanvas(zoomDirection) {
-    var zoomDelta = Math.sqrt(zoom);
+function zoomCanvas(zoomInput) {
+    var zoomCoefficient = Math.sqrt(zoom);
     switch(type_opt.value){
         case fractalOption.MANDELBROT_SET:
-            zoomDelta = 10 + 0.058827625*zoom + .0925943e-9*zoom*zoom;
+            zoomCoefficient = 10 + 0.058827625*zoom + .0925943e-9*zoom*zoom;
             break;
         default:
-            zoomDelta = Math.sqrt(zoom);
+            zoomCoefficient = Math.sqrt(zoom);
     }
-    zoom = parseFloat(zoom) + parseFloat(zoomDelta*zoomDirection);
+    zoom = parseFloat(zoom) + parseFloat(zoomCoefficient*zoomInput);
     zoom.toFixed(5);
 }
 
@@ -287,10 +314,8 @@ function generateJulietSet() {
     }
 }
 
-function generateFractal() {
-    create_link_button_text.style.color = "#444444";
-    create_link_button_text.innerHTML = "LOADING...";
-    
+function generateFractal() {   
+    fractalLoading();
     context.clearRect(0, 0, canvas.width, canvas.height);
     switch (type_opt.value) {
         case fractalOption.MANDELBROT_SET:
@@ -414,18 +439,19 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     };
     canvas.addEventListener("mousedown", function(e) {
         if(e.button === 0) {
+            fractalLoading();
             mouseDown = true;
         }
     });
     canvas.addEventListener("mouseup", function(e) {
         if(e.button === 0) {
+            generateFractal();
             mouseDown = false;
         }
     });
     canvas.addEventListener("mousemove", function(e) {
         if(mouseDown) {
             moveCanvas(e);
-            generateFractal();
         }
         else {
             clickX = e.clientX;
@@ -433,15 +459,22 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         }
         printVars(e);
     });
-    canvas.addEventListener("mousewheel", function(e) {
-        zoomCanvas(e);
+    canvas.addEventListener("mousewheel", debounce(300, function (e) {
+        var accumulatedZoom = 0;
+        for (var i = 0; i < this.data.length; ++i) {
+            accumulatedZoom += this.data[i][0].wheelDelta >= 0 ? 1 : -1;
+        }
+        zoomCanvas(accumulatedZoom);
         generateFractal();
-    });
-    canvas.addEventListener("DOMMouseScroll", function(e) {
-        e.wheelDelta = -e.detail;
-        zoomCanvas(e.wheelDelta >= 0 ? 1 : -1);
+    }, true));
+    canvas.addEventListener("DOMMouseScroll", debounce(200, function (e) {
+        var accumulatedZoom = 0;
+        for (var i = 0; i < this.data.length; ++i) {
+            accumulatedZoom += -this.data[i][0].detail >= 0 ? 1 : -1;
+        }
+        zoomCanvas(accumulatedZoom);
         generateFractal();
-    });
+    }, true));
     create_link_button.onclick = function () {
         createLink();
     };
