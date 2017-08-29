@@ -47,6 +47,8 @@ var juliet_y_opt = document.getElementById("juliet_y_opt");
 var color1_opt = document.getElementById("color1_opt");
 var color2_opt = document.getElementById("color2_opt");
 var color3_opt = document.getElementById("color3_opt");
+var color4_opt = document.getElementById("color4_opt");
+var color5_opt = document.getElementById("color5_opt");
 var save_name = document.getElementById("save_name");
 var save_button = document.getElementById("save_button");
 var create_link_button = document.getElementById("create_link_button");
@@ -71,7 +73,9 @@ function printVars(e) {
             "validity_threshold_opt: " + validity_threshold_opt.value + ", " +
             "color1: " + color1_opt.value + ", " +
             "color2: " + color2_opt.value + ", " +
-            "color3: " + color3_opt.value;  
+            "color3: " + color3_opt.value +
+            "color4: " + color4_opt.value + ", " +
+            "color5: " + color5_opt.value;
 }
 
 function fractalLoading() {
@@ -164,21 +168,27 @@ function gradientColorConversion(c1, c2, percentage) {
     var greenDiff = c2RGB.g - c1RGB.g;
     var blueDiff = c2RGB.b - c1RGB.b;
     return rgbToHex(
-            parseInt(c1RGB.r + redDiff*percentage),
-            parseInt(c1RGB.g + greenDiff*percentage),
+            parseInt(c1RGB.r + redDiff * percentage),
+            parseInt(c1RGB.g + greenDiff * percentage),
             parseInt(c1RGB.b + blueDiff * percentage));
- 
+
 }
 
 function chooseColor(percentage) {
     if (percentage == 0)
         return color1_opt.value;
-    else if (percentage <= .5) {
+    else if (percentage <= .25) {
         return gradientColorConversion(color1_opt.value,
-                color2_opt.value, 2 * percentage);
-    } else {
+                color2_opt.value, 4 * percentage);
+    } else if (percentage <= .5) {
         return gradientColorConversion(color2_opt.value,
-                color3_opt.value, 2 * percentage - 1);
+                color3_opt.value,  4 * (percentage - 0.25));
+    } else if (percentage <= .75) {
+        return gradientColorConversion(color3_opt.value,
+                color4_opt.value, 4 * (percentage - 0.50));
+    } else {
+        return gradientColorConversion(color4_opt.value,
+                color5_opt.value, 4 * (percentage - 0.75));
     }
 }
 
@@ -287,9 +297,8 @@ function generateBurningShip() {
 function checkInJulietSet(zx, zy, cx, cy) {
     var zxSquared = zx*zx;
     var zySquared = zy*zy;
-    var escapeRadius = validity_threshold_opt.value * validity_threshold_opt.value;
     for(var i = 0; i < iterations_opt.value; i++) {
-        if(zxSquared + zySquared > escapeRadius) {
+        if(zxSquared + zySquared > validity_threshold_opt.value) {
             return (i/iterations_opt.value);
         }
         var temp = zx*zy;
@@ -350,13 +359,15 @@ function createLink() {
     }
     var link = window.location.href.split('?')[0] +
             "?shared=1" +
-            "&type=" + type_opt.value + 
+            "&type=" + type_opt.value +
             "&iterations=" + iterations_opt.value +
             "&validity_threshold=" + validity_threshold_opt.value +
             juliet_opt +
-            "&color1=" + color1_opt.value.substring(1,color1_opt.value.length) +
-            "&color2=" + color2_opt.value.substring(1,color1_opt.value.length) +
-            "&color3=" + color3_opt.value.substring(1,color1_opt.value.length) +
+            "&color1=" + color1_opt.value.substring(1, color1_opt.value.length) +
+            "&color2=" + color2_opt.value.substring(1, color2_opt.value.length) +
+            "&color3=" + color3_opt.value.substring(1, color3_opt.value.length) +
+            "&color4=" + color4_opt.value.substring(1, color4_opt.value.length) +
+            "&color5=" + color5_opt.value.substring(1, color5_opt.value.length) +
             "&x=" + canvasX.toFixed(10) +
             "&y=" + canvasY.toFixed(10) +
             "&zoom=" + zoom.toFixed(5);
@@ -431,14 +442,20 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     color1_opt.onchange = function () {
         generateFractal();
     };
-    color2_opt.onchange = function() {
+    color2_opt.onchange = function () {
         generateFractal();
     };
-    color3_opt.onchange = function() {
+    color3_opt.onchange = function () {
         generateFractal();
     };
-    canvas.addEventListener("mousedown", function(e) {
-        if(e.button === 0) {
+    color4_opt.onchange = function () {
+        generateFractal();
+    };
+    color5_opt.onchange = function () {
+        generateFractal();
+    };
+    canvas.addEventListener("mousedown", function (e) {
+        if (e.button === 0) {
             fractalLoading();
             mouseDown = true;
         }
@@ -498,19 +515,20 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
             type_opt.value = getURLParameter("type");
             changeTypeOptions();
             iterations_opt.value = parseInt(getURLParameter("iterations"));
-            validity_threshold_opt.value = parseInt(getURLParameter("validity_threshold"));
-            if(type_opt.value == fractalOption.JULIET_SET) {
-                juliet_x_opt.value = parseFloat(getURLParameter("juliet_x"));
-                juliet_y_opt.value = parseFloat(getURLParameter("juliet_y"));
-            }
-            color1_opt.value = '#' + getURLParameter("color1");
-            color2_opt.value = '#' + getURLParameter("color2");
-            color3_opt.value = '#' + getURLParameter("color3");
-            canvasX = parseFloat(getURLParameter("x"));
-            canvasY = parseFloat(getURLParameter("y"));
-            zoom = parseFloat(getURLParameter("zoom"));
-    }
-    else
+        validity_threshold_opt.value = parseInt(getURLParameter("validity_threshold"));
+        if (type_opt.value == fractalOption.JULIET_SET) {
+            juliet_x_opt.value = parseFloat(getURLParameter("juliet_x"));
+            juliet_y_opt.value = parseFloat(getURLParameter("juliet_y"));
+        }
+        color1_opt.value = '#' + getURLParameter("color1");
+        color2_opt.value = '#' + getURLParameter("color2");
+        color3_opt.value = '#' + getURLParameter("color3");
+        color4_opt.value = '#' + getURLParameter("color4");
+        color5_opt.value = '#' + getURLParameter("color5");
+        canvasX = parseFloat(getURLParameter("x"));
+        canvasY = parseFloat(getURLParameter("y"));
+        zoom = parseFloat(getURLParameter("zoom"));
+    } else
     {
        selectDefaults();
     }
