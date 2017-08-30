@@ -88,14 +88,18 @@ input, select {
     border: 0;
     cursor: pointer;
     text-align: center;
-    width: 150px;
+    width: 120px;
     height: 25px;
 }
 
 input[type=number] { 
   -moz-appearance: textfield;
   appearance: textfield;
-  margin: 0;
+  cursor: inherit;
+}
+
+input[type=text] {
+  width: 200px;
   cursor: inherit;
 }
 

@@ -6,7 +6,8 @@
 var fractalOption = {
     MANDELBROT_SET: "1",
     BURNING_SHIP: "2",
-    JULIET_SET: "3"
+    JULIET_SET: "3",
+    LYAPUNOV: "4"
 };
 var mandelbrotSetDefault = {
     CANVAS_X: 2.2,
@@ -30,6 +31,13 @@ var julietSetDefault = {
     ITERATIONS: 25
 };
 
+var lyapunovDefault = {
+    CANVAS_X: 1.35,
+    CANVAS_Y: 1.35,
+    ZOOM: 20,
+    ITERATIONS: 50
+};
+
 var canvasX = 0;
 var canvasY = 0;
 var zoom = 0;
@@ -39,11 +47,14 @@ var context = canvas.getContext("2d");
 var para = document.getElementById("testoutput");
 var type_opt = document.getElementById("type_opt");
 var iterations_opt = document.getElementById("iterations_opt");
+var validity_threshold_opt_container = document.getElementById("validity_threshold_opt_container");
 var validity_threshold_opt = document.getElementById("validity_threshold_opt");
 var juliet_x_opt_container = document.getElementById("juliet_x_opt_container");
 var juliet_y_opt_container = document.getElementById("juliet_y_opt_container");
 var juliet_x_opt = document.getElementById("juliet_x_opt");
 var juliet_y_opt = document.getElementById("juliet_y_opt");
+var lyapunov_sequence_opt_container = document.getElementById("lyapunov_sequence_opt_container");
+var lyapunov_sequence_opt = document.getElementById("lyapunov_sequence_opt");
 var color1_opt = document.getElementById("color1_opt");
 var color2_opt = document.getElementById("color2_opt");
 var color3_opt = document.getElementById("color3_opt");
@@ -212,10 +223,17 @@ function selectDefaults() {
             zoom = julietSetDefault.ZOOM;
             iterations_opt.value = julietSetDefault.ITERATIONS;
             break;
+        case fractalOption.LYAPUNOV:
+            canvasX = lyapunovDefault.CANVAS_X;
+            canvasY = lyapunovDefault.CANVAS_Y;
+            zoom = lyapunovDefault.ZOOM;
+            iterations_opt.value = lyapunovDefault.ITERATIONS;
+            break;
         default:
             canvasX = mandelbrotSetDefault.CANVAS_X;
             canvasY = mandelbrotSetDefault.CANVAS_Y;
             zoom = mandelbrotSetDefault.ZOOM;
+            iterations_opt.value = mandelbrotSetDefault.ITERATIONS;
             break;
     }
 }
@@ -223,15 +241,25 @@ function selectDefaults() {
 function changeTypeOptions() {
     juliet_x_opt_container.classList.add("opt_hidden");
     juliet_y_opt_container.classList.add("opt_hidden");
+    lyapunov_sequence_opt_container.classList.add("opt_hidden");
+    validity_threshold_opt_container.classList.add("opt_hidden");
     switch (type_opt.value) {
         case fractalOption.JULIET_SET:
             canvasX = julietSetDefault.CANVAS_X;
             canvasY = julietSetDefault.CANVAS_Y;
             zoom = julietSetDefault.ZOOM;
+            validity_threshold_opt_container.classList.remove("opt_hidden");
             juliet_x_opt_container.classList.remove("opt_hidden");
             juliet_y_opt_container.classList.remove("opt_hidden");
             break;
+        case fractalOption.LYAPUNOV:
+             canvasX = lyapunovDefault.CANVAS_X;
+            canvasY = lyapunovDefault.CANVAS_Y;
+            zoom = lyapunovDefault.ZOOM;
+            lyapunov_sequence_opt_container.classList.remove("opt_hidden");
+            break;
         default:
+            validity_threshold_opt_container.classList.remove("opt_hidden");
             break;
     }
 }
@@ -323,6 +351,35 @@ function generateJulietSet() {
     }
 }
 
+function lyapunovRFunction(a, b, S, index) {
+    return S.charAt(index) === 'A' ? a : b;
+}
+
+function lyapunovXFunction(a, b, S) {
+    var x = [];
+    x[0]  = 0.5;
+    for(var i = 1; i < S.length; i++) {
+        x.push(lyapunovRFunction(a, b, S, i)*x[i-1]*(1-x[i-1]));
+    }
+    return x;
+}
+
+function calculateLyapunovExponent(x, y, S) {
+    return 0;
+}
+
+function generateLyapunov() {
+    var lyapunov_exponent = Infinity;
+    var sequence = lyapunov_sequence_opt.value.repeat(iterations_opt.value);
+    for (var x = 0; x < canvas.width; x++) {
+        for (var y = 0; y < canvas.height; y++) {
+            lyapunov_exponent = calculateLyapunovExponent(x / zoom - canvasX, y / zoom - canvasY, sequence);
+            context.fillStyle = chooseColor(lyapunov_exponent);
+            context.fillRect(x, y, 1, 1);
+        }
+    }
+}
+
 function generateFractal() {   
     fractalLoading();
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -335,6 +392,9 @@ function generateFractal() {
             break;
         case fractalOption.JULIET_SET:
             generateJulietSet();
+            break;
+        case fractalOption.LYAPUNOV:
+            generateLyapunov();
             break;
         default:
             break;
@@ -357,12 +417,17 @@ function createLink() {
         juliet_opt = "&juliet_x=" + juliet_x_opt.value
                 + "&juliet_y=" + juliet_y_opt.value;
     }
+    var lyapunov_sequence = "";
+    if(type_opt.value == fractalOption.LYAPUNOV) {
+        lyapunov_sequence = "&lyapunov_sequence=" + lyapunov_sequence_opt.value;
+    }
     var link = window.location.href.split('?')[0] +
             "?shared=1" +
             "&type=" + type_opt.value +
             "&iterations=" + iterations_opt.value +
             "&validity_threshold=" + validity_threshold_opt.value +
             juliet_opt +
+            lyapunov_sequence +
             "&color1=" + color1_opt.value.substring(1, color1_opt.value.length) +
             "&color2=" + color2_opt.value.substring(1, color2_opt.value.length) +
             "&color3=" + color3_opt.value.substring(1, color3_opt.value.length) +
@@ -439,6 +504,15 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         juliet_y_opt.value = Math.round(1000*juliet_y_opt.value)/1000;
         generateFractal();
     };
+    lyapunov_sequence_opt.onchange = function () {
+        lyapunov_sequence_opt.value = lyapunov_sequence_opt.value
+                .toUpperCase()
+                .replace(/[^AB]/g,'');
+        if (lyapunov_sequence_opt.value == "") {
+            lyapunov_sequence_opt.value = "ABAB";
+        }
+        generateFractal();
+    };
     color1_opt.onchange = function () {
         generateFractal();
     };
@@ -513,12 +587,15 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     }
     if (getURLParameter("shared")) {
             type_opt.value = getURLParameter("type");
-            changeTypeOptions();
-            iterations_opt.value = parseInt(getURLParameter("iterations"));
+        changeTypeOptions();
+        iterations_opt.value = parseInt(getURLParameter("iterations"));
         validity_threshold_opt.value = parseInt(getURLParameter("validity_threshold"));
         if (type_opt.value == fractalOption.JULIET_SET) {
             juliet_x_opt.value = parseFloat(getURLParameter("juliet_x"));
             juliet_y_opt.value = parseFloat(getURLParameter("juliet_y"));
+        }
+        if (type_opt.value == fractalOption.LYAPUNOV) {
+            lyapunov_sequence_opt.value = getURLParameter("lyapunov_sequence");
         }
         color1_opt.value = '#' + getURLParameter("color1");
         color2_opt.value = '#' + getURLParameter("color2");
@@ -531,6 +608,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     } else
     {
        selectDefaults();
+       changeTypeOptions();
     }
     generateFractal();
 })();

@@ -22,8 +22,8 @@ and open the template in the editor.
                         <option value="1" selected="selected">MANDELBROT SET</option>
                         <option value="2">BURNING SHIP</option>
                         <option value="3">JULIET SET</option>
-                        <option value="4">B</option>
-                        <option value="5">C</option>
+                        <option value="4">LYAPUNOV</option>
+                        <option value="5">NEWTON</option>
                         <option value="6">D</option>
                     </select>
                 </div>
@@ -32,7 +32,7 @@ and open the template in the editor.
                 <p id="iterations_p">ITERATIONS</p>
                 <input id="iterations_opt" type="number" min="1" max="2000" value="10" placeholder="1 <= ? <= 2000">
             </div>
-            <div class="generator_option">
+            <div class="generator_option opt_hidden" id="validity_threshold_opt_container">
                 <p>VALIDITY THRESHOLD</p>
                 <input id="validity_threshold_opt" type="number" min="1" max="1000" value="25" placeholder="1 <= ? <= 1000">
             </div>
@@ -43,6 +43,10 @@ and open the template in the editor.
             <div class="generator_option opt_hidden" id="juliet_y_opt_container">
                 <p>Y COMPONENT</p>
                 <input id="juliet_y_opt" type="number" min="-1" max="1" step="0.001" value="-0.1" placeholder="-1 <= ? <= 1">
+            </div>
+            <div class="generator_option opt_hidden" id="lyapunov_sequence_opt_container">
+                <p>SEQUENCE</p>
+                <input id="lyapunov_sequence_opt" type="text" value="ABAB" placeholder="Non-empty string of A's and B's">
             </div>
             <div class="generator_option">
                 <p>COLOR 1</p>
