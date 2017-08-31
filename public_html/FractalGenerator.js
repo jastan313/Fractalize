@@ -32,9 +32,9 @@ var julietSetDefault = {
 };
 
 var lyapunovDefault = {
-    CANVAS_X: 1.35,
-    CANVAS_Y: 1.35,
-    ZOOM: 20,
+    CANVAS_X: 2.5,
+    CANVAS_Y: 2.5,
+    ZOOM: 5,
     ITERATIONS: 50
 };
 
@@ -142,16 +142,10 @@ function moveCanvas(e) {
 
 // !important maybe add other zoom scales for each type
 function zoomCanvas(zoomInput) {
-    var zoomCoefficient = Math.sqrt(zoom);
-    switch(type_opt.value){
-        case fractalOption.MANDELBROT_SET:
-            zoomCoefficient = 10 + 0.058827625*zoom + .0925943e-9*zoom*zoom;
-            break;
-        default:
-            zoomCoefficient = Math.sqrt(zoom);
-    }
+    var zoomCoefficient = zoomCoefficient = 10 + 0.058827625*zoom + .0925943e-9*zoom*zoom;
     zoom = parseFloat(zoom) + parseFloat(zoomCoefficient*zoomInput);
     zoom.toFixed(5);
+    if(zoom <= 5) zoom = 5;
 }
 
 function componentToHex(c) {
@@ -351,30 +345,78 @@ function generateJulietSet() {
     }
 }
 
-function lyapunovRFunction(a, b, S, index) {
-    return S.charAt(index) === 'A' ? a : b;
+function lyapunovRFunction(a, b, S) {
+    var r = [];
+    r.push(0);
+    for(var i = 0; i < S.length; i++) {
+        r.push(S.charAt(i) === 'A' ? a : b);
+    }
+    return r;
 }
 
-function lyapunovXFunction(a, b, S) {
+function lyapunovXFunction(S, r) {
     var x = [];
-    x[0]  = 0.5;
-    for(var i = 1; i < S.length; i++) {
-        x.push(lyapunovRFunction(a, b, S, i)*x[i-1]*(1-x[i-1]));
+    x[0] = 0.5;
+    for (var i = 1; i <= S.length; i++) {
+        if (x[i - 1] === Infinity || x[i - 1] === -Infinity) {
+            x.push(r[i] > 0 ? -x[i-1] : x[i-1]);
+        } else {
+            x.push(r[i] * x[i-1] * (1 - x[i-1]));
+        }
     }
     return x;
 }
 
 function calculateLyapunovExponent(x, y, S) {
-    return 0;
+    var r = lyapunovRFunction(x, y, S);
+    var x = lyapunovXFunction(S, r);
+    var sum = 0;
+    for (var i = 1; i < iterations_opt.value; i++) {
+        sum += Math.log(Math.abs(r[i] * (1 - x[i] + x[i])));
+        if(sum === Infinity || sum === -Infinity) {
+            return sum;
+        }
+    }
+    return sum;;
 }
 
 function generateLyapunov() {
-    var lyapunov_exponent = Infinity;
     var sequence = lyapunov_sequence_opt.value.repeat(iterations_opt.value);
+    var lyapunov_exponents = new Array(canvas.width);
+    var min = 0, max = 0;
+    for(var i = 0; i < canvas.width; i++) {
+        lyapunov_exponents[i] = new Array(canvas.height);
+    }
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {
-            lyapunov_exponent = calculateLyapunovExponent(x / zoom - canvasX, y / zoom - canvasY, sequence);
-            context.fillStyle = chooseColor(lyapunov_exponent);
+            lyapunov_exponents[x][y] = calculateLyapunovExponent(x / zoom - canvasX,
+                    y / zoom - canvasY,
+                    sequence);
+            if(lyapunov_exponents[x][y] !== Infinity && lyapunov_exponents[x][y] !== -Infinity) {
+                if(lyapunov_exponents[x][y] < min) {
+                    min = lyapunov_exponents[x][y];
+                }
+                else if(lyapunov_exponents[x][y] > max) {
+                    max = lyapunov_exponents[x][y];
+                }
+            }
+        }
+    }
+
+    var range = max - min;
+    for (var x = 0; x < canvas.width; x++) {
+        for (var y = 0; y < canvas.height; y++) {
+            var error_percentage = 0;
+            if(lyapunov_exponents[x][y] === -Infinity) {
+                error_percentage = 0;
+            }
+            else if(lyapunov_exponents[x][y] === Infinity) {
+                error_percentage = 1;
+            }
+            else {
+                error_percentage = (lyapunov_exponents[x][y] - min)/range;
+            }
+            context.fillStyle = chooseColor(error_percentage);
             context.fillRect(x, y, 1, 1);
         }
     }
