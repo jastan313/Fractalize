@@ -387,37 +387,58 @@ function generateLyapunov() {
     for(var i = 0; i < canvas.width; i++) {
         lyapunov_exponents[i] = new Array(canvas.height);
     }
-    for (var x = 0; x < canvas.width; x++) {
-        for (var y = 0; y < canvas.height; y++) {
-            lyapunov_exponents[x][y] = calculateLyapunovExponent(x / zoom - canvasX,
+    //for (var x = 0; x < canvas.width; x++) {
+    //    for (var y = 0; y < canvas.height; y++) {
+    var xStep = 4/canvas.width;
+    var yStep = 4/canvas.height;
+    for (var x = 0; x < 4; x = Math.round(100*(x + xStep))/100) {
+        for (var y = 0; y < 4; y = Math.round(100*(y + yStep))/100) {
+            var xScaled = Math.round(x/xStep);
+            var yScaled = Math.round(y/yStep);
+            /*lyapunov_exponents[x][y] = calculateLyapunovExponent(x / zoom - canvasX,
                     y / zoom - canvasY,
-                    sequence);
-            if(lyapunov_exponents[x][y] !== Infinity && lyapunov_exponents[x][y] !== -Infinity) {
+                    sequence);*/
+            lyapunov_exponents[xScaled][yScaled] = calculateLyapunovExponent(x, y, sequence);
+            
+            /*if(lyapunov_exponents[x][y] !== Infinity && lyapunov_exponents[x][y] !== -Infinity) {
                 if(lyapunov_exponents[x][y] < min) {
                     min = lyapunov_exponents[x][y];
                 }
                 else if(lyapunov_exponents[x][y] > max) {
                     max = lyapunov_exponents[x][y];
                 }
+            }*/
+            
+            if(lyapunov_exponents[xScaled][yScaled] !== Infinity && lyapunov_exponents[xScaled][yScaled] !== -Infinity) {
+                if(lyapunov_exponents[xScaled][yScaled] < min) {
+                    min = lyapunov_exponents[xScaled][yScaled];
+                }
+                else if(lyapunov_exponents[xScaled][yScaled] > max) {
+                    max = lyapunov_exponents[xScaled][yScaled];
+                }
             }
         }
     }
 
     var range = max - min;
-    for (var x = 0; x < canvas.width; x++) {
-        for (var y = 0; y < canvas.height; y++) {
+    //for (var x = 0; x < canvas.width; x++) {
+    //    for (var y = 0; y < canvas.height; y++) {
+    for (var x = 0; x < 4; x = Math.round(100*(x + xStep))/100) {
+        for (var y = 0; y < 4; y = Math.round(100*(y + yStep))/100) {
+            var xScaled = Math.round(x/xStep);
+            var yScaled = Math.round(y/yStep);
             var error_percentage = 0;
-            if(lyapunov_exponents[x][y] === -Infinity) {
+            if(lyapunov_exponents[xScaled][yScaled] === -Infinity) {
                 error_percentage = 0;
             }
-            else if(lyapunov_exponents[x][y] === Infinity) {
+            else if(lyapunov_exponents[xScaled][yScaled] === Infinity) {
                 error_percentage = 1;
             }
             else {
-                error_percentage = (lyapunov_exponents[x][y] - min)/range;
+                error_percentage = (lyapunov_exponents[xScaled][yScaled] - min)/range;
             }
             context.fillStyle = chooseColor(error_percentage);
-            context.fillRect(x, y, 1, 1);
+            context.fillRect(xScaled, yScaled, 1, 1);
         }
     }
 }
