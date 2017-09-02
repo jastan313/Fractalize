@@ -7,7 +7,8 @@ var fractalOption = {
     MANDELBROT_SET: "1",
     BURNING_SHIP: "2",
     JULIET_SET: "3",
-    LYAPUNOV: "4"
+    NEWTON: "4",
+    LYAPUNOV: "5"
 };
 var mandelbrotSetDefault = {
     CANVAS_X: 2.2,
@@ -28,6 +29,13 @@ var julietSetDefault = {
     CANVAS_X: 1.35,
     CANVAS_Y: 1.35,
     ZOOM: 150,
+    ITERATIONS: 25
+};
+
+var newtonDefault = {
+    CANVAS_X: 1,
+    CANVAS_Y: 1,
+    ZOOM: 200,
     ITERATIONS: 25
 };
 
@@ -87,6 +95,54 @@ function printVars(e) {
             "color3: " + color3_opt.value +
             "color4: " + color4_opt.value + ", " +
             "color5: " + color5_opt.value;
+}
+
+class Polynomial {
+    constructor(nTerms, coefs, pows) {
+        this.nTerms = nTerms;
+        this.coef = new Array(nTerms);
+        this.pow = new Array(nTerms);
+        for(var i = 0; i < nTerms; i++) {
+            this.coef[i] = coefs[i];
+            this.pow[i] = pows[i];
+        }
+        var s = "";
+        for (var i = 0; i < nTerms - 1; i++) {
+            s += this.coef[i] + "x^" + this.pow[i] + " + ";
+        }
+        if (this.pow[nTerms - 1] == 0) {
+            s += this.coef[nTerms - 1];
+        } else if(this.pow[nTerms - 1] == 1) {
+            s += this.coef[i] + "x";
+        }
+        else {
+            s += this.coef[i] + "x^" + this.pow[i]
+        }
+        this.str = s;
+    }
+
+    derivative() {
+        var d_nTerms = 0;
+        var d_Coef = [];
+        var d_Pow = [];
+        for (var i = 0; i < this.nTerms; i++) {
+            var tempPow = this.pow[i] - 1;
+            if (tempPow < 0)
+                continue;
+            d_Coef.push(this.coef[i] * this.pow[i]);
+            d_Pow.push(tempPow);
+            d_nTerms++;
+        }
+        return new Polynomial(d_nTerms, d_Coef, d_Pow);
+    }
+
+    solve(x) {
+        var value = 0;
+        for (var i = 0; i < this.nTerms; i++) {
+            value += this.coef[i] * Math.pow(x, this.pow[i]);
+        }
+        return value;
+    }
 }
 
 function fractalLoading() {
@@ -217,6 +273,12 @@ function selectDefaults() {
             zoom = julietSetDefault.ZOOM;
             iterations_opt.value = julietSetDefault.ITERATIONS;
             break;
+        case fractalOption.NEWTON:
+            canvasX = newtonDefault.CANVAS_X;
+            canvasY = newtonDefault.CANVAS_Y;
+            zoom = newtonDefault.ZOOM;
+            iterations_opt.value = newtonDefault.ITERATIONS;
+            break;
         case fractalOption.LYAPUNOV:
             canvasX = lyapunovDefault.CANVAS_X;
             canvasY = lyapunovDefault.CANVAS_Y;
@@ -345,6 +407,34 @@ function generateJulietSet() {
     }
 }
 
+function checkInNewton(x,y, polynomial) {
+    var a = 1;
+    var derivative = polynomial.derivative();
+    var Zn = x+y;
+    for(var i = 0; i < iterations_opt.value; i++) {
+        var Zn = Zn - a*(polynomial.solve(Zn)/derivative.solve(Zn));
+        if(Math.abs(Zn) < validity_threshold_opt.value) {
+            return (i/iterations_opt.value);
+        }
+        if(Math.abs(Zn) === Infinity) {
+            return 1;
+        }
+    }
+    return 1;
+}
+
+function generateNewton() {
+    var error_percentage = 0;
+    var p = new Polynomial(3,[1,15,-16],[8,4,0]);
+    for (var x = 0; x < canvas.width; x++) {
+        for (var y = 0; y < canvas.height; y++) {
+            error_percentage = checkInNewton(x / zoom - canvasX, y / zoom - canvasY, p);
+            context.fillStyle = chooseColor(error_percentage);
+            context.fillRect(x, y, 1, 1);
+        }
+    }
+}
+
 function lyapunovRFunction(a, b, S) {
     var r = [];
     r.push(0);
@@ -455,6 +545,9 @@ function generateFractal() {
             break;
         case fractalOption.JULIET_SET:
             generateJulietSet();
+            break;
+        case fractalOption.NEWTON:
+            generateNewton();
             break;
         case fractalOption.LYAPUNOV:
             generateLyapunov();
