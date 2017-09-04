@@ -61,6 +61,15 @@ var juliet_x_opt_container = document.getElementById("juliet_x_opt_container");
 var juliet_y_opt_container = document.getElementById("juliet_y_opt_container");
 var juliet_x_opt = document.getElementById("juliet_x_opt");
 var juliet_y_opt = document.getElementById("juliet_y_opt");
+var newton_term1_opt_container = document.getElementById("newton_term1_opt_container");
+var newton_term2_opt_container = document.getElementById("newton_term2_opt_container");
+var newton_term3_opt_container = document.getElementById("newton_term3_opt_container");
+var newton_term1_coef_opt = document.getElementById("newton_term1_coef_opt");
+var newton_term2_coef_opt = document.getElementById("newton_term2_coef_opt");
+var newton_term3_coef_opt = document.getElementById("newton_term3_coef_opt");
+var newton_term1_pow_opt = document.getElementById("newton_term1_pow_opt");
+var newton_term2_pow_opt = document.getElementById("newton_term2_pow_opt");
+var newton_term3_pow_opt = document.getElementById("newton_term3_pow_opt");
 var lyapunov_sequence_opt_container = document.getElementById("lyapunov_sequence_opt_container");
 var lyapunov_sequence_opt = document.getElementById("lyapunov_sequence_opt");
 var color1_opt = document.getElementById("color1_opt");
@@ -297,6 +306,9 @@ function selectDefaults() {
 function changeTypeOptions() {
     juliet_x_opt_container.classList.add("opt_hidden");
     juliet_y_opt_container.classList.add("opt_hidden");
+    newton_term1_opt_container.classList.add("opt_hidden");
+    newton_term2_opt_container.classList.add("opt_hidden");
+    newton_term3_opt_container.classList.add("opt_hidden");
     lyapunov_sequence_opt_container.classList.add("opt_hidden");
     validity_threshold_opt_container.classList.add("opt_hidden");
     switch (type_opt.value) {
@@ -308,8 +320,17 @@ function changeTypeOptions() {
             juliet_x_opt_container.classList.remove("opt_hidden");
             juliet_y_opt_container.classList.remove("opt_hidden");
             break;
+        case fractalOption.NEWTON:
+            canvasX = newtonDefault.CANVAS_X;
+            canvasY = newtonDefault.CANVAS_Y;
+            zoom = newtonDefault.ZOOM;
+            validity_threshold_opt_container.classList.remove("opt_hidden");
+            newton_term1_opt_container.classList.remove("opt_hidden");
+            newton_term2_opt_container.classList.remove("opt_hidden");
+            newton_term3_opt_container.classList.remove("opt_hidden");
+            break;
         case fractalOption.LYAPUNOV:
-             canvasX = lyapunovDefault.CANVAS_X;
+            canvasX = lyapunovDefault.CANVAS_X;
             canvasY = lyapunovDefault.CANVAS_Y;
             zoom = lyapunovDefault.ZOOM;
             lyapunov_sequence_opt_container.classList.remove("opt_hidden");
@@ -407,12 +428,45 @@ function generateJulietSet() {
     }
 }
 
-function checkInNewton(x,y, polynomial) {
+function combineNewtonTerms() {
+    var dict = {};
+    dict[newton_term1_pow_opt.value] = parseFloat(newton_term1_coef_opt.value);
+    if (dict[newton_term2_pow_opt.value]) {
+        dict[newton_term2_pow_opt.value] = dict[newton_term2_pow_opt.value]
+                + parseFloat(newton_term2_coef_opt.value);
+    } else {
+        dict[newton_term2_pow_opt.value] = parseFloat(newton_term2_coef_opt.value);
+    }
+    if (dict[newton_term3_pow_opt.value]) {
+        dict[newton_term3_pow_opt.value] = dict[newton_term3_pow_opt.value]
+                + parseFloat(newton_term3_coef_opt.value);
+    } else {
+        dict[newton_term3_pow_opt.value] = parseFloat(newton_term3_coef_opt.value);
+    }
+    var terms = [];
+    for (key in dict) {
+        terms.push({coef: dict[key], pow: parseInt(key)});
+    }
+    terms.sort(function (a, b) {
+        return ((a.pow < b.pow) ? 1 : ((a.pow == b.pow) ? 0 : -1));
+    });
+    while(terms.length < 3) {
+        terms.splice(0, 0, {coef: 0, pow: terms[0].pow + 1});
+    }
+    newton_term1_coef_opt.value = terms[0].coef;
+    newton_term1_pow_opt.value = terms[0].pow;
+    newton_term2_coef_opt.value = terms[1].coef;
+    newton_term2_pow_opt.value = terms[1].pow;
+    newton_term3_coef_opt.value = terms[2].coef;
+    newton_term3_pow_opt.value = terms[2].pow;
+}
+
+function checkInNewton(x, y, polynomial) {
     var a = 1;
     var derivative = polynomial.derivative();
-    var Zn = x+y;
-    for(var i = 0; i < iterations_opt.value; i++) {
-        var Zn = Zn - a*(polynomial.solve(Zn)/derivative.solve(Zn));
+    var Zn = x + y;
+    for (var i = 0; i < iterations_opt.value; i++) {
+        var Zn = Zn - a * (polynomial.solve(Zn)/derivative.solve(Zn));
         if(Math.abs(Zn) < validity_threshold_opt.value) {
             return (i/iterations_opt.value);
         }
@@ -563,18 +617,27 @@ function generateFractal() {
         create_link_button_text.classList.remove('pre-animation');
     }, 550);
 }
-    
+
 function createLink() {
     create_link_button_text.classList.add("pre-animation");
     create_link_button_text.style.color = "#444444";
     create_link_button_text.innerHTML = "GENERATING AND COPYING...";
     var juliet_opt = "";
-    if(type_opt.value == fractalOption.JULIET_SET) {
+    if (type_opt.value == fractalOption.JULIET_SET) {
         juliet_opt = "&juliet_x=" + juliet_x_opt.value
                 + "&juliet_y=" + juliet_y_opt.value;
     }
+    var newton_opt = "";
+    if (type_opt.value == fractalOption.NEWTON) {
+        newton_opt = "&newton_term1_coef=" + newton_term1_coef_opt.value
+                + "&newton_term1_pow=" + newton_term1_pow_opt.value +
+                "&newton_term2_coef=" + newton_term2_coef_opt.value
+                + "&newton_term2_pow=" + newton_term2_pow_opt.value +
+                "&newton_term3_coef=" + newton_term3_coef_opt.value
+                + "&newton_term3_pow=" + newton_term3_pow_opt.value;
+    }
     var lyapunov_sequence = "";
-    if(type_opt.value == fractalOption.LYAPUNOV) {
+    if (type_opt.value == fractalOption.LYAPUNOV) {
         lyapunov_sequence = "&lyapunov_sequence=" + lyapunov_sequence_opt.value;
     }
     var link = window.location.href.split('?')[0] +
@@ -583,6 +646,7 @@ function createLink() {
             "&iterations=" + iterations_opt.value +
             "&validity_threshold=" + validity_threshold_opt.value +
             juliet_opt +
+            newton_opt +
             lyapunov_sequence +
             "&color1=" + color1_opt.value.substring(1, color1_opt.value.length) +
             "&color2=" + color2_opt.value.substring(1, color2_opt.value.length) +
@@ -625,6 +689,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
 (function () {
     type_opt.onchange = function() {
         selectDefaults();
+        combineNewtonTerms();
         changeTypeOptions();
         generateFractal();
     };
@@ -657,13 +722,52 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
             juliet_y_opt.value = -1;
         if (juliet_y_opt.value > 1)
             juliet_y_opt.value = 1;
-        juliet_y_opt.value = Math.round(1000*juliet_y_opt.value)/1000;
+        juliet_y_opt.value = Math.round(1000 * juliet_y_opt.value) / 1000;
+        generateFractal();
+    };
+    newton_term1_coef_opt.onchange = function () {
+        newton_term1_coef_opt.value = Math.round(1000 * newton_term1_coef_opt.value) / 1000;
+        combineNewtonTerms();
+        generateFractal();
+    };
+    newton_term2_coef_opt.onchange = function () {
+        newton_term2_coef_opt.value = Math.round(1000 * newton_term2_coef_opt.value) / 1000;
+        combineNewtonTerms();
+        generateFractal();
+    };
+    newton_term3_coef_opt.onchange = function () {
+        if(newton_term3_coef_opt.value == 0) {
+            newton_term3_coef_opt.value = 1;
+        }
+        newton_term3_coef_opt.value = Math.round(1000 * newton_term3_coef_opt.value) / 1000;
+        combineNewtonTerms();
+        generateFractal();
+    };
+    newton_term1_pow_opt.onchange = function () {
+        if (newton_term1_pow_opt.value < 0)
+            newton_term1_pow_opt.value = 0;
+        newton_term1_pow_opt.value = Math.round(newton_term1_pow_opt.value);
+        combineNewtonTerms();
+        generateFractal();
+    };
+    newton_term2_pow_opt.onchange = function () {
+        if (newton_term2_pow_opt.value < 0)
+            newton_term2_pow_opt.value = 0;
+        newton_term2_pow_opt.value = Math.round(newton_term2_pow_opt.value);
+        combineNewtonTerms();
+        generateFractal();
+    };
+    newton_term3_pow_opt.onchange = function () {
+        if (newton_term3_pow_opt.value < 0)
+            newton_term3_pow_opt.value = 0;
+        newton_term3_pow_opt.value = Math.round(newton_term3_pow_opt.value);
+        combineNewtonTerms();
         generateFractal();
     };
     lyapunov_sequence_opt.onchange = function () {
         lyapunov_sequence_opt.value = lyapunov_sequence_opt.value
                 .toUpperCase()
-                .replace(/[^AB]/g,'');
+                .replace(/[^AB]/g, '');
         if (lyapunov_sequence_opt.value == "") {
             lyapunov_sequence_opt.value = "ABAB";
         }
@@ -749,6 +853,15 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         if (type_opt.value == fractalOption.JULIET_SET) {
             juliet_x_opt.value = parseFloat(getURLParameter("juliet_x"));
             juliet_y_opt.value = parseFloat(getURLParameter("juliet_y"));
+        }
+        if (type_opt.value == fractalOption.NEWTON) {
+            newton_term1_coef_opt.value = parseFloat(getURLParameter("newton_term1_coef"));
+            newton_term2_coef_opt.value = parseFloat(getURLParameter("newton_term2_coef"));
+            newton_term3_coef_opt.value = parseFloat(getURLParameter("newton_term3_coef"));
+            newton_term1_pow_opt.value = parseInt(getURLParameter("newton_term1_pow"));
+            newton_term2_pow_opt.value = parseInt(getURLParameter("newton_term2_pow"));
+            newton_term3_pow_opt.value = parseInt(getURLParameter("newton_term3_pow"));
+            combineNewtonTerms();
         }
         if (type_opt.value == fractalOption.LYAPUNOV) {
             lyapunov_sequence_opt.value = getURLParameter("lyapunov_sequence");

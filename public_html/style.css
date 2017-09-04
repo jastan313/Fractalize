@@ -88,7 +88,10 @@ input, select {
     border: 0;
     cursor: pointer;
     text-align: center;
-    width: 120px;
+    min-width: 120px;
+    width: 75%;
+    font-size: 13pt;
+    font-family: serif;
     height: 25px;
 }
 
@@ -99,19 +102,62 @@ input[type=number] {
 }
 
 input[type=text] {
-  width: 200px;
-  cursor: inherit;
+    width: 200px;
+    cursor: inherit;
 }
 
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
+    -webkit-appearance: none; 
+    margin: 0; 
 }
 
 input:hover, select:hover, select option:hover {
-     outline: 4.5px outset #990000;
-     transition:  outline .05s ease-in;
+    outline: 4.5px outset #990000;
+    transition:  outline .05s ease-in;
+}
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    font-size: 14px;
+    color: #330000;
+    font-weight: bold;
+}
+::-moz-placeholder { /* Firefox 19+ */
+    font-size: 14px;
+    color: #330000;
+    font-weight: bold;
+}
+:-ms-input-placeholder { /* IE 10+ */
+    font-size: 14px;
+    color: #330000;
+    font-weight: bold;
+}
+:-moz-placeholder { /* Firefox 18- */
+    font-size: 14px;
+    color: #330000;
+    font-weight: bold;
+}
+
+
+.newton_opt_subcontainer {
+    white-space: nowrap;
+}
+
+.newton_opt_subcontainer > * {
+    display: inline-block;
+}
+
+.newtown_term_opt {
+    min-width: 85px;
+    width: 35%;
+}
+
+.newton_x_term {
+    color: #777777;
+    font-weight: bold;
+    background-color: white;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 2px #990000 outset;
 }
 
 #canvas_container {
@@ -231,6 +277,19 @@ input:hover, select:hover, select option:hover {
     text-decoration: underline;
     resize: none;
     margin-bottom: 20px;
+}
+
+#link_text::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    font-size: 15pt;
+}
+#link_text::-moz-placeholder { /* Firefox 19+ */
+    font-size: 15pt;
+}
+#link_text::-ms-input-placeholder { /* IE 10+ */
+    font-size: 15pt;
+}
+#link_text::-moz-placeholder { /* Firefox 18- */
+    font-size: 15pt;
 }
 
 a {
