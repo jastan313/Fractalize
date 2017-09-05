@@ -89,10 +89,14 @@ input, select {
     cursor: pointer;
     text-align: center;
     min-width: 120px;
-    width: 75%;
+    width: 80%;
     font-size: 13pt;
     font-family: serif;
     height: 25px;
+}
+
+select {
+    font-size: 11pt;
 }
 
 input[type=number] { 
@@ -116,6 +120,7 @@ input:hover, select:hover, select option:hover {
     outline: 4.5px outset #990000;
     transition:  outline .05s ease-in;
 }
+
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
     font-size: 14px;
     color: #330000;
@@ -189,13 +194,26 @@ input:hover, select:hover, select option:hover {
     margin-bottom: 5px;
     width: 400px;
     font-family: monospace;
-    font-size: 14pt;
+    font-size: 15pt;
 }
 
 #save_name:hover {
     cursor: text;
     outline: 3px outset #990000;
     transition:  outline .05s ease-in;
+}
+
+#save_name::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    font-size: 17px;
+}
+#save_name::-moz-placeholder { /* Firefox 19+ */
+    font-size: 17px;
+}
+#save_name::-ms-input-placeholder { /* IE 10+ */
+    font-size: 17px;
+}
+#save_name::-moz-placeholder { /* Firefox 18- */
+    font-size: 17px;
 }
 
 #save_button {
