@@ -106,6 +106,48 @@ function printVars(e) {
             "color5: " + color5_opt.value;
 }
 
+class Complex {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+        this.str = '' + real;
+        this.str += (imaginary < 0) ?
+             " - " + Math.abs(imaginary) + "i" :
+               " + " + imaginary + "i";
+    }
+
+    add(c) {
+        return new Complex(this.real + c.real, this.imaginary + c.imaginary);
+    }
+
+    subtract(c) {
+        return new Complex(this.real - c.real, this.imaginary - c.imaginary);
+    }
+
+    multiply(c) {
+        return new Complex(this.real * c.real - this.imaginary * c.imaginary,
+                this.real * c.imaginary + this.imaginary * c.real);
+    }
+
+    divide(c) {
+        var denominator = c.real * c.real + c.imaginary * c.imaginary;
+        var real = (this.real * c.real + this.imaginary * c.imaginary) / denominator;
+        var imaginary = (this.imaginary * c.real - this.real * c.imaginary) / denominator;
+        return new Complex(real, imaginary);
+    }
+
+    absMultiply(c) {
+        var iTemp = Math.abs(this.real * c.imaginary);
+        var iTemp2 = Math.abs(c.real * this.imaginary);
+        return new Complex(this.real * c.real - this.imaginary * c.imaginary,
+                iTemp + iTemp2);
+    }
+
+    abs() {
+        return Math.sqrt(this.real * this.real + this.imaginary * this.imaginary);
+    }
+}
+
 class Polynomial {
     constructor(nTerms, coefs, pows) {
         this.nTerms = nTerms;
@@ -152,17 +194,51 @@ class Polynomial {
         }
         return value;
     }
+    
+    complexSolve(c) {
+        var complexTerms = [];
+        for (var i = 0; i < this.nTerms; i++) {
+            var tempComplex = new Complex(1,0);
+            for(var j = 0; j < this.pow[i]; j++) {
+                tempComplex = tempComplex.multiply(c);
+            }
+            tempComplex = tempComplex.multiply(new Complex(this.coef[i],0));
+            complexTerms.push(tempComplex);
+        }
+        var resultComplex = complexTerms[0];
+        for(var i = 1; i < complexTerms.length; i++) {
+            resultComplex = resultComplex.add(complexTerms[i]);
+        }
+        return resultComplex;
+    }
 }
 
-function fractalLoading() {
-    create_link_button_text.style.color = "#444444";
-    create_link_button_text.innerHTML = "LOADING...";
+function fractalLoading(s) {
+    create_link_button_text.innerHTML = s;
+    create_link_button_text.classList.add("div_disabled");
+    create_link_button.classList.add("div_disabled");
+}
+
+function fractalUnload(s) {
+    create_link_button_text.innerHTML = s;
+    create_link_button_text.classList.remove("div_disabled");
+    create_link_button.classList.remove("div_disabled");
+}
+
+function fractalLoaded(s) {
+    create_link_button_text.style.opacity = 0;
+    setTimeout(function () {
+        create_link_button_text.style.color = "#990000";
+        fractalUnload(s);
+        create_link_button_text.style.opacity = 100;
+    }, 550);
 }
 
 function debounce(delay, callback, accumulateData) {
     var timeout = null;
     var theData = [];
     return function () {
+        fractalLoading("LOADING...");
         if (accumulateData) {
             var arr = [];
             for (var i = 0; i < arguments.length; ++i)
@@ -342,18 +418,14 @@ function changeTypeOptions() {
 }
 
 function checkInMandelbrotSet(x, y) {
-    var realComponent = x;
-    var imaginaryComponent = y;
+    var complex = new Complex(x,y);
     for (var i = 0; i < iterations_opt.value; i++) {
-        var tempRealComponent = realComponent * realComponent
-                - imaginaryComponent * imaginaryComponent + x;
-        var temp = realComponent * imaginaryComponent;
-        var tempImaginaryComponent = temp + temp + y;
-        realComponent = tempRealComponent;
-        imaginaryComponent = tempImaginaryComponent;
-        if (tempImaginaryComponent > validity_threshold_opt.value
-                || realComponent > validity_threshold_opt.value
-                || realComponent * imaginaryComponent > validity_threshold_opt.value)
+        complex = complex.multiply(complex);
+        complex.real += x;
+        complex.imaginary += y;
+        if (complex.imaginary > validity_threshold_opt.value
+                || complex.real > validity_threshold_opt.value
+                || complex.real * complex.imaginary > validity_threshold_opt.value)
             return (i / iterations_opt.value);
     }
     return 0;
@@ -371,18 +443,16 @@ function generateMandelbrotSet() {
 }
 
 function checkInBurningShip(x,y) {
+    var complex = new Complex(x,y);
     var realComponent = x;
     var imaginaryComponent = y;
     for (var i = 0; i < iterations_opt.value; i++) {
-        var tempRealComponent = realComponent * realComponent
-                - imaginaryComponent * imaginaryComponent + x;
-        var temp = Math.abs(realComponent * imaginaryComponent);
-        var tempImaginaryComponent = temp + temp + y;
-        realComponent = tempRealComponent;
-        imaginaryComponent = tempImaginaryComponent;
-        if (tempImaginaryComponent > validity_threshold_opt.value
-                || realComponent > validity_threshold_opt.value
-                || realComponent * imaginaryComponent > validity_threshold_opt.value)
+        complex = complex.absMultiply(complex);
+        complex.real += x;
+        complex.imaginary += y;
+        if (complex.imaginary > validity_threshold_opt.value
+                || complex.real > validity_threshold_opt.value
+                || complex.real * complex.imaginary > validity_threshold_opt.value)
             return (i/iterations_opt.value);
     }
     return 0;
@@ -400,17 +470,15 @@ function generateBurningShip() {
 }
 
 function checkInJulietSet(zx, zy, cx, cy) {
-    var zxSquared = zx*zx;
-    var zySquared = zy*zy;
-    for(var i = 0; i < iterations_opt.value; i++) {
-        if(zxSquared + zySquared > validity_threshold_opt.value) {
-            return (i/iterations_opt.value);
+    var complex = new Complex(zx, zy);
+    for (var i = 0; i < iterations_opt.value; i++) {
+        if (complex.real*complex.real + complex.imaginary*complex.imaginary
+                > validity_threshold_opt.value) {
+            return (i / iterations_opt.value);
         }
-        var temp = zx*zy;
-        zy = temp + temp + cy;
-        zx = zxSquared - zySquared + cx;
-        zxSquared = zx*zx;
-        zySquared = zy*zy;
+        complex = complex.multiply(complex);
+        complex.real += cx;
+        complex.imaginary += cy;
     }
     return 0;
 }
@@ -461,28 +529,32 @@ function combineNewtonTerms() {
     newton_term3_pow_opt.value = terms[2].pow;
 }
 
+//http://code.activestate.com/recipes/577166-newton-fractals/
 function checkInNewton(x, y, polynomial) {
-    var a = 1;
-    var derivative = polynomial.derivative();
-    var Zn = x + y;
+    var z = new Complex(x, y);
+    var stepSize = .0000001;
+    var deltaComplex = new Complex(stepSize, stepSize);
     for (var i = 0; i < iterations_opt.value; i++) {
-        var Zn = Zn - a * (polynomial.solve(Zn)/derivative.solve(Zn));
-        if(Math.abs(Zn) < validity_threshold_opt.value) {
-            return (i/iterations_opt.value);
+        var polyZ = polynomial.complexSolve(z);
+        var dz = (polynomial.complexSolve(z.add(deltaComplex))
+                .subtract(polyZ))
+                .divide(deltaComplex);
+        var z0 = (z.subtract(polynomial.complexSolve(polyZ))).divide(dz);
+        if (z0.subtract(z).abs() > validity_threshold_opt.value) {
+            return (i / iterations_opt.value);
         }
-        if(Math.abs(Zn) === Infinity) {
-            return 1;
-        }
+        z = z0;
     }
-    return 1;
+    return 0;
 }
 
 function generateNewton() {
     var error_percentage = 0;
     var p = new Polynomial(3,[1,15,-16],[8,4,0]);
+    var p1 = new Polynomial(2,[1,-1],[3,0]);
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {
-            error_percentage = checkInNewton(x / zoom - canvasX, y / zoom - canvasY, p);
+            error_percentage = checkInNewton(x*2/canvas.width-2,y*2/canvas.height-2, p1);
             context.fillStyle = chooseColor(error_percentage);
             context.fillRect(x, y, 1, 1);
         }
@@ -588,7 +660,7 @@ function generateLyapunov() {
 }
 
 function generateFractal() {   
-    fractalLoading();
+    fractalLoading("LOADING...");
     context.clearRect(0, 0, canvas.width, canvas.height);
     switch (type_opt.value) {
         case fractalOption.MANDELBROT_SET:
@@ -609,19 +681,11 @@ function generateFractal() {
         default:
             break;
     }
-    
-    create_link_button_text.classList.add('pre-animation');
-    setTimeout(function () {
-        create_link_button_text.style.color = "#990000";
-        create_link_button_text.innerHTML = "GENERATE AND COPY LINK";
-        create_link_button_text.classList.remove('pre-animation');
-    }, 550);
+    fractalLoaded("GENERATE AND COPY LINK");
 }
 
 function createLink() {
-    create_link_button_text.classList.add("pre-animation");
-    create_link_button_text.style.color = "#444444";
-    create_link_button_text.innerHTML = "GENERATING AND COPYING...";
+    fractalLoading("GENERATING AND COPYING...");
     var juliet_opt = "";
     if (type_opt.value == fractalOption.JULIET_SET) {
         juliet_opt = "&juliet_x=" + juliet_x_opt.value
@@ -663,12 +727,7 @@ function createLink() {
     } catch(err) {
         alert("Use copy-and-paste to share this link");
     }
-    setTimeout(function () {
-        create_link_button_text.style.color = "#990000";
-        create_link_button_text.innerHTML = "GENERATE AND COPY LINK";
-        create_link_button_text.classList.remove('pre-animation');
-    }, 550);
-
+    fractalLoaded("GENERATE AND COPY LINK");
 }
 
 function generateRandomName(length) {
@@ -687,6 +746,12 @@ function generateRandomName(length) {
 var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof navigator!=="undefined"&&/MSIE [1-9]\./.test(navigator.userAgent)){return}var t=e.document,n=function(){return e.URL||e.webkitURL||e},r=t.createElementNS("http://www.w3.org/1999/xhtml","a"),o="download"in r,a=function(e){var t=new MouseEvent("click");e.dispatchEvent(t)},i=/constructor/i.test(e.HTMLElement)||e.safari,f=/CriOS\/[\d]+/.test(navigator.userAgent),u=function(t){(e.setImmediate||e.setTimeout)(function(){throw t},0)},s="application/octet-stream",d=1e3*40,c=function(e){var t=function(){if(typeof e==="string"){n().revokeObjectURL(e)}else{e.remove()}};setTimeout(t,d)},l=function(e,t,n){t=[].concat(t);var r=t.length;while(r--){var o=e["on"+t[r]];if(typeof o==="function"){try{o.call(e,n||e)}catch(a){u(a)}}}},p=function(e){if(/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type)){return new Blob([String.fromCharCode(65279),e],{type:e.type})}return e},v=function(t,u,d){if(!d){t=p(t)}var v=this,w=t.type,m=w===s,y,h=function(){l(v,"writestart progress write writeend".split(" "))},S=function(){if((f||m&&i)&&e.FileReader){var r=new FileReader;r.onloadend=function(){var t=f?r.result:r.result.replace(/^data:[^;]*;/,"data:attachment/file;");var n=e.open(t,"_blank");if(!n)e.location.href=t;t=undefined;v.readyState=v.DONE;h()};r.readAsDataURL(t);v.readyState=v.INIT;return}if(!y){y=n().createObjectURL(t)}if(m){e.location.href=y}else{var o=e.open(y,"_blank");if(!o){e.location.href=y}}v.readyState=v.DONE;h();c(y)};v.readyState=v.INIT;if(o){y=n().createObjectURL(t);setTimeout(function(){r.href=y;r.download=u;a(r);h();c(y);v.readyState=v.DONE});return}S()},w=v.prototype,m=function(e,t,n){return new v(e,t||e.name||"download",n)};if(typeof navigator!=="undefined"&&navigator.msSaveOrOpenBlob){return function(e,t,n){t=t||e.name||"download";if(!n){e=p(e)}return navigator.msSaveOrOpenBlob(e,t)}}w.abort=function(){};w.readyState=w.INIT=0;w.WRITING=1;w.DONE=2;w.error=w.onwritestart=w.onprogress=w.onwrite=w.onabort=w.onerror=w.onwriteend=null;return m}(typeof self!=="undefined"&&self||typeof window!=="undefined"&&window||this.content);if(typeof module!=="undefined"&&module.exports){module.exports.saveAs=saveAs}else if(typeof define!=="undefined"&&define!==null&&define.amd!==null){define("FileSaver.js",function(){return saveAs})}
 
 (function () {
+    type_opt.addEventListener("focus", function (e) {
+        fractalLoading("LOADING...");
+    });
+    type_opt.addEventListener("focusout", function (e) {
+        fractalUnload("GENERATE AND COPY LINK");
+    });
     type_opt.onchange = function() {
         selectDefaults();
         combineNewtonTerms();
@@ -790,7 +855,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     };
     canvas.addEventListener("mousedown", function (e) {
         if (e.button === 0) {
-            fractalLoading();
+            fractalLoading("LOADING...");
             mouseDown = true;
         }
     });

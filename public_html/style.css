@@ -271,10 +271,9 @@ input:hover, select:hover, select option:hover {
     transition: opacity .7s ease-in-out;
 }
 
-#create_link_button_text.pre-animation {
-    cursor: wait;
-    opacity: 0;
-    color: grey;
+.div_disabled {
+    color: #444444 !important;
+    cursor: wait !important;
 }
 
 #link_text {
