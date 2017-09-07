@@ -54,6 +54,11 @@ h2 {
     font-size: 15pt;
 }
 
+pre {
+    margin: 0;
+    padding: 0;
+}
+
 #option_container {
     width: 100%;
     margin: 0 auto;

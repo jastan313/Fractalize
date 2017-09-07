@@ -33,10 +33,10 @@ var julietSetDefault = {
 };
 
 var newtonDefault = {
-    CANVAS_X: 1,
-    CANVAS_Y: 1,
-    ZOOM: 200,
-    ITERATIONS: 25
+    CANVAS_X: 6.6,
+    CANVAS_Y: 6.6,
+    ZOOM: 30,
+    ITERATIONS: 15
 };
 
 var lyapunovDefault = {
@@ -532,29 +532,33 @@ function combineNewtonTerms() {
 //http://code.activestate.com/recipes/577166-newton-fractals/
 function checkInNewton(x, y, polynomial) {
     var z = new Complex(x, y);
-    var stepSize = .0000001;
+    var stepSize = 1e-2;
     var deltaComplex = new Complex(stepSize, stepSize);
+    var lowerThreshold = validity_threshold_opt.value / 100;
+    var higherThreshold = validity_threshold_opt.value;
     for (var i = 0; i < iterations_opt.value; i++) {
         var polyZ = polynomial.complexSolve(z);
         var dz = (polynomial.complexSolve(z.add(deltaComplex))
                 .subtract(polyZ))
                 .divide(deltaComplex);
-        var z0 = (z.subtract(polynomial.complexSolve(polyZ))).divide(dz);
-        if (z0.subtract(z).abs() > validity_threshold_opt.value) {
+        var z0 = z.subtract(polyZ.divide(dz));
+        var diff = z0.subtract(z).abs();
+        if (diff < lowerThreshold || diff > higherThreshold) {
             return (i / iterations_opt.value);
         }
         z = z0;
     }
-    return 0;
+    return 1;
 }
 
 function generateNewton() {
     var error_percentage = 0;
-    var p = new Polynomial(3,[1,15,-16],[8,4,0]);
-    var p1 = new Polynomial(2,[1,-1],[3,0]);
+    var p = new Polynomial(3,
+            [newton_term1_coef_opt.value, newton_term2_coef_opt.value, newton_term3_coef_opt.value],
+            [newton_term1_pow_opt.value, newton_term2_pow_opt.value, newton_term3_pow_opt.value]);
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {
-            error_percentage = checkInNewton(x*2/canvas.width-2,y*2/canvas.height-2, p1);
+            error_percentage = checkInNewton(x / zoom - canvasX, y / zoom - canvasY, p);
             context.fillStyle = chooseColor(error_percentage);
             context.fillRect(x, y, 1, 1);
         }
@@ -911,7 +915,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         });
     }
     if (getURLParameter("shared")) {
-            type_opt.value = getURLParameter("type");
+        type_opt.value = getURLParameter("type");
         changeTypeOptions();
         iterations_opt.value = parseInt(getURLParameter("iterations"));
         validity_threshold_opt.value = parseInt(getURLParameter("validity_threshold"));
