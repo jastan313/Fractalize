@@ -3,9 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/public_html/style.css</file>
-            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/public_html/index.html</file>
-            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/public_html/FractalGenerator.js</file>
+            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/minified/index.min.html</file>
+            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/minified/index.html</file>
+            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/minified/FractalGenerator.min.js</file>
+            <file>file:/C:/Users/Jason%20Tan/Desktop/Projects/Fractalize/minified/style.min.css</file>
         </group>
     </open-files>
 </project-private>

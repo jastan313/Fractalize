@@ -27,7 +27,7 @@ html, body {
     font-family: "Arial Black", Gadget, sans-serif;
 }
 
-h1, h2 {
+h1, h2, h3 {
     border-top: 5px black ridge;
     border-bottom: 5px red ridge;
     background-color: white;
@@ -42,21 +42,25 @@ h1 {
     font-size: 30pt;
 }
 
+
+h2 {
+    font-size: 15pt;
+    padding: 0;
+    margin: 0;
+}
+
+h3 {
+    font-size: 14pt;
+    padding: 0;
+    margin-top: 5px;
+}
+
 #footer{
     position: absolute;
     right: 0;
     bottom: 0;
     left: 0;
     padding: 2px;
-}
-
-h2 {
-    font-size: 15pt;
-}
-
-pre {
-    margin: 0;
-    padding: 0;
 }
 
 #option_container {

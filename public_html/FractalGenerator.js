@@ -1,8 +1,3 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 var fractalOption = {
     MANDELBROT_SET: "1",
     BURNING_SHIP: "2",
@@ -22,7 +17,6 @@ var burningShipDefault = {
     CANVAS_Y: 2.1,
     ZOOM: 120,
     ITERATIONS: 15
-    
 };
 
 var julietSetDefault = {
@@ -43,7 +37,7 @@ var newtonDefault = {
     CANVAS_X: 6.7,
     CANVAS_Y: 6.7,
     ZOOM: 30,
-    ITERATIONS: 5
+    ITERATIONS: 10
 };
 
 var canvasX = 0;
@@ -52,7 +46,7 @@ var zoom = 0;
 
 var canvas = document.getElementById("fractal_canvas");
 var context = canvas.getContext("2d");
-var para = document.getElementById("testoutput");
+//var para = document.getElementById("testoutput");
 var type_opt = document.getElementById("type_opt");
 var iterations_opt = document.getElementById("iterations_opt");
 var validity_threshold_opt_container = document.getElementById("validity_threshold_opt_container");
@@ -87,7 +81,7 @@ var clickX = 0;
 var clickY = 0;
 var mouseDown = false;
 
-function printVars(e) {
+/*function printVars(e) {
     para.innerHTML = 
             "canvasX: " + canvasX + ", " +
             "canvasY: " + canvasY + ", " +
@@ -104,114 +98,104 @@ function printVars(e) {
             "color3: " + color3_opt.value +
             "color4: " + color4_opt.value + ", " +
             "color5: " + color5_opt.value;
+}*/
+
+function Complex(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+    this.str = '' + real;
+    /*this.str += (imaginary < 0) ?
+        " - " + Math.abs(imaginary) + "i" :
+        " + " + imaginary + "i";*/
 }
+Complex.prototype.add = function (c) {
+    return new Complex(this.real + c.real, this.imaginary + c.imaginary);
+};
+Complex.prototype.subtract = function (c) {
+    return new Complex(this.real - c.real, this.imaginary - c.imaginary);
+};
+Complex.prototype.multiply = function (c) {
+    return new Complex(this.real * c.real - this.imaginary * c.imaginary,
+        this.real * c.imaginary + this.imaginary * c.real);
+};
+Complex.prototype.divide = function (c) {
+    var denominator = c.real * c.real + c.imaginary * c.imaginary;
+    var real = (this.real * c.real + this.imaginary * c.imaginary) / denominator;
+    var imaginary = (this.imaginary * c.real - this.real * c.imaginary) / denominator;
+    return new Complex(real, imaginary);
+};
+Complex.prototype.absMultiply = function (c) {
+    var iTemp = Math.abs(this.real * c.imaginary);
+    var iTemp2 = Math.abs(c.real * this.imaginary);
+    return new Complex(this.real * c.real - this.imaginary * c.imaginary,
+        iTemp + iTemp2);
+};
+Complex.prototype.abs = function () {
+    return Math.sqrt(this.real * this.real + this.imaginary * this.imaginary);
+};
 
-class Complex {
-    constructor(real, imaginary) {
-        this.real = real;
-        this.imaginary = imaginary;
-        this.str = '' + real;
-        this.str += (imaginary < 0) ?
-             " - " + Math.abs(imaginary) + "i" :
-               " + " + imaginary + "i";
-    }
-
-    add(c) {
-        return new Complex(this.real + c.real, this.imaginary + c.imaginary);
-    }
-
-    subtract(c) {
-        return new Complex(this.real - c.real, this.imaginary - c.imaginary);
-    }
-
-    multiply(c) {
-        return new Complex(this.real * c.real - this.imaginary * c.imaginary,
-                this.real * c.imaginary + this.imaginary * c.real);
-    }
-
-    divide(c) {
-        var denominator = c.real * c.real + c.imaginary * c.imaginary;
-        var real = (this.real * c.real + this.imaginary * c.imaginary) / denominator;
-        var imaginary = (this.imaginary * c.real - this.real * c.imaginary) / denominator;
-        return new Complex(real, imaginary);
-    }
-
-    absMultiply(c) {
-        var iTemp = Math.abs(this.real * c.imaginary);
-        var iTemp2 = Math.abs(c.real * this.imaginary);
-        return new Complex(this.real * c.real - this.imaginary * c.imaginary,
-                iTemp + iTemp2);
-    }
-
-    abs() {
-        return Math.sqrt(this.real * this.real + this.imaginary * this.imaginary);
+function Polynomial(nTerms, coefs, pows) {
+    this.nTerms = nTerms;
+    this.coef = new Array(nTerms);
+    this.pow = new Array(nTerms);
+    for(var i = 0; i < nTerms; i++) {
+        this.coef[i] = coefs[i];
+        this.pow[i] = pows[i];
     }
 }
+        /*var s = "";
+         for (var i = 0; i < nTerms - 1; i++) {
+         s += this.coef[i] + "x^" + this.pow[i] + " + ";
+         }
+         if (this.pow[nTerms - 1] == 0) {
+         s += this.coef[nTerms - 1];
+         } else if(this.pow[nTerms - 1] == 1) {
+         s += this.coef[i] + "x";
+         }
+         else {
+         s += this.coef[i] + "x^" + this.pow[i]
+         }
+         this.str = s;*/
 
-class Polynomial {
-    constructor(nTerms, coefs, pows) {
-        this.nTerms = nTerms;
-        this.coef = new Array(nTerms);
-        this.pow = new Array(nTerms);
-        for(var i = 0; i < nTerms; i++) {
-            this.coef[i] = coefs[i];
-            this.pow[i] = pows[i];
-        }
-        var s = "";
-        for (var i = 0; i < nTerms - 1; i++) {
-            s += this.coef[i] + "x^" + this.pow[i] + " + ";
-        }
-        if (this.pow[nTerms - 1] == 0) {
-            s += this.coef[nTerms - 1];
-        } else if(this.pow[nTerms - 1] == 1) {
-            s += this.coef[i] + "x";
-        }
-        else {
-            s += this.coef[i] + "x^" + this.pow[i]
-        }
-        this.str = s;
-    }
+        /*derivative() {
+         var d_nTerms = 0;
+         var d_Coef = [];
+         var d_Pow = [];
+         for (var i = 0; i < this.nTerms; i++) {
+         var tempPow = this.pow[i] - 1;
+         if (tempPow < 0)
+         continue;
+         d_Coef.push(this.coef[i] * this.pow[i]);
+         d_Pow.push(tempPow);
+         d_nTerms++;
+         }
+         return new Polynomial(d_nTerms, d_Coef, d_Pow);
+         }*/
 
-    derivative() {
-        var d_nTerms = 0;
-        var d_Coef = [];
-        var d_Pow = [];
-        for (var i = 0; i < this.nTerms; i++) {
-            var tempPow = this.pow[i] - 1;
-            if (tempPow < 0)
-                continue;
-            d_Coef.push(this.coef[i] * this.pow[i]);
-            d_Pow.push(tempPow);
-            d_nTerms++;
-        }
-        return new Polynomial(d_nTerms, d_Coef, d_Pow);
-    }
-
-    solve(x) {
-        var value = 0;
-        for (var i = 0; i < this.nTerms; i++) {
-            value += this.coef[i] * Math.pow(x, this.pow[i]);
-        }
-        return value;
-    }
+        /*solve(x) {
+         var value = 0;
+         for (var i = 0; i < this.nTerms; i++) {
+         value += this.coef[i] * Math.pow(x, this.pow[i]);
+         }
+         return value;
+         }*/
     
-    complexSolve(c) {
-        var complexTerms = [];
-        for (var i = 0; i < this.nTerms; i++) {
-            var tempComplex = new Complex(1,0);
-            for(var j = 0; j < this.pow[i]; j++) {
-                tempComplex = tempComplex.multiply(c);
-            }
-            tempComplex = tempComplex.multiply(new Complex(this.coef[i],0));
-            complexTerms.push(tempComplex);
+Polynomial.prototype.complexSolve = function(c) {
+    var complexTerms = [];
+    for (var i = 0; i < this.nTerms; i++) {
+        var tempComplex = new Complex(1,0);
+        for(var j = 0; j < this.pow[i]; j++) {
+            tempComplex = tempComplex.multiply(c);
         }
-        var resultComplex = complexTerms[0];
-        for(var i = 1; i < complexTerms.length; i++) {
-            resultComplex = resultComplex.add(complexTerms[i]);
-        }
-        return resultComplex;
+        tempComplex = tempComplex.multiply(new Complex(this.coef[i],0));
+        complexTerms.push(tempComplex);
     }
-}
+    var resultComplex = complexTerms[0];
+    for(var k = 1; k < complexTerms.length; k++) {
+        resultComplex = resultComplex.add(complexTerms[k]);
+    }
+    return resultComplex;
+};
 
 function fractalLoading(s) {
     create_link_button_text.innerHTML = s;
@@ -283,7 +267,7 @@ function moveCanvas(e) {
 
 // !important maybe add other zoom scales for each type
 function zoomCanvas(zoomInput) {
-    var zoomCoefficient = zoomCoefficient = 10 + 0.058827625*zoom + .0925943e-9*zoom*zoom;
+    var zoomCoefficient = 10 + 0.058827625*zoom + 0.0925943e-9*zoom*zoom;
     zoom = parseFloat(zoom) + parseFloat(zoomCoefficient*zoomInput);
     zoom.toFixed(5);
     if(zoom <= 5) zoom = 5;
@@ -291,7 +275,7 @@ function zoomCanvas(zoomInput) {
 
 function componentToHex(c) {
     var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
+    return hex.length === 1 ? "0" + hex : hex;
 }
 
 function rgbToHex(r, g, b) {
@@ -321,15 +305,15 @@ function gradientColorConversion(c1, c2, percentage) {
 }
 
 function chooseColor(percentage) {
-    if (percentage == 0)
+    if (percentage === 0)
         return color1_opt.value;
-    else if (percentage <= .25) {
+    else if (percentage <= 0.25) {
         return gradientColorConversion(color1_opt.value,
                 color2_opt.value, 4 * percentage);
-    } else if (percentage <= .5) {
+    } else if (percentage <= 0.5) {
         return gradientColorConversion(color2_opt.value,
                 color3_opt.value,  4 * (percentage - 0.25));
-    } else if (percentage <= .75) {
+    } else if (percentage <= 0.75) {
         return gradientColorConversion(color3_opt.value,
                 color4_opt.value, 4 * (percentage - 0.50));
     } else {
@@ -444,8 +428,6 @@ function generateMandelbrotSet() {
 
 function checkInBurningShip(x,y) {
     var complex = new Complex(x,y);
-    var realComponent = x;
-    var imaginaryComponent = y;
     for (var i = 0; i < iterations_opt.value; i++) {
         complex = complex.absMultiply(complex);
         complex.real += x;
@@ -472,9 +454,15 @@ function generateBurningShip() {
 function checkInJulietSet(zx, zy, cx, cy) {
     var complex = new Complex(zx, zy);
     for (var i = 0; i < iterations_opt.value; i++) {
-        if (complex.real*complex.real + complex.imaginary*complex.imaginary
-                > validity_threshold_opt.value) {
+        var realSquared = complex.real * complex.real;
+        if (realSquared > validity_threshold_opt.value) {
             return (i / iterations_opt.value);
+        } else {
+            var imaginarySquared = complex.imaginary * complex.imaginary;
+            if (imaginarySquared > validity_threshold_opt.value ||
+                realSquared + imaginarySquared > validity_threshold_opt.value) {
+            return (i / iterations_opt.value);
+            }
         }
         complex = complex.multiply(complex);
         complex.real += cx;
@@ -485,11 +473,12 @@ function checkInJulietSet(zx, zy, cx, cy) {
 
 function generateJulietSet() {
     var error_percentage = 0;
+    var juliet_x = parseFloat(juliet_x_opt.value);
+    var juliet_y = parseFloat(juliet_y_opt.value);
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {
             error_percentage = checkInJulietSet(x / zoom - canvasX, y / zoom - canvasY,
-                    parseFloat(juliet_x_opt.value),
-                    parseFloat(juliet_y_opt.value));
+                juliet_x, juliet_y);
             context.fillStyle = chooseColor(error_percentage);
             context.fillRect(x, y, 1, 1);
         }
@@ -522,8 +511,9 @@ function calculateLyapunovExponent(x, y, S) {
     var r = lyapunovRFunction(x, y, S);
     var x = lyapunovXFunction(S, r);
     var sum = 0;
+    var LOG_2 = Math.log(2);
     for (var i = 1; i < iterations_opt.value; i++) {
-        sum += Math.log(Math.abs(r[i] - 2*r[i]*x[i]))/Math.log(2);
+        sum += Math.log(Math.abs(r[i] - 2*r[i]*x[i]))/LOG_2;
         if(sum === Infinity || sum === -Infinity) {
             return sum;
         }
@@ -531,7 +521,6 @@ function calculateLyapunovExponent(x, y, S) {
     return sum/iterations_opt.value;
 }
 
-//http://charles.vassallo.pagesperso-orange.fr/en/lyap_art/lyapdoc.html#exposant
 function generateLyapunov() {
     var sequence = lyapunov_sequence_opt.value.repeat(iterations_opt.value);
     var lyapunov_exponents = new Array(canvas.width);
@@ -620,11 +609,11 @@ function combineNewtonTerms() {
         dict[newton_term3_pow_opt.value] = parseFloat(newton_term3_coef_opt.value);
     }
     var terms = [];
-    for (key in dict) {
+    for (var key in dict) {
         terms.push({coef: dict[key], pow: parseInt(key)});
     }
     terms.sort(function (a, b) {
-        return ((a.pow < b.pow) ? 1 : ((a.pow == b.pow) ? 0 : -1));
+        return ((a.pow < b.pow) ? 1 : ((a.pow === b.pow) ? 0 : -1));
     });
     while(terms.length < 3) {
         terms.splice(0, 0, {coef: 0, pow: terms[0].pow + 1});
@@ -637,7 +626,6 @@ function combineNewtonTerms() {
     newton_term3_pow_opt.value = terms[2].pow;
 }
 
-//http://code.activestate.com/recipes/577166-newton-fractals/
 function checkInNewton(x, y, polynomial) {
     var z = new Complex(x, y);
     var stepSize = 1e-2;
@@ -701,16 +689,16 @@ function generateFractal() {
 function createLink() {
     fractalLoading("GENERATING AND COPYING...");
     var juliet_opt = "";
-    if (type_opt.value == fractalOption.JULIET_SET) {
+    if (type_opt.value === fractalOption.JULIET_SET) {
         juliet_opt = "&juliet_x=" + juliet_x_opt.value
                 + "&juliet_y=" + juliet_y_opt.value;
     }
     var lyapunov_sequence = "";
-    if (type_opt.value == fractalOption.LYAPUNOV) {
+    if (type_opt.value === fractalOption.LYAPUNOV) {
         lyapunov_sequence = "&lyapunov_sequence=" + lyapunov_sequence_opt.value;
     }
     var newton_opt = "";
-    if (type_opt.value == fractalOption.NEWTON) {
+    if (type_opt.value === fractalOption.NEWTON) {
         newton_opt = "&newton_term1_coef=" + newton_term1_coef_opt.value
                 + "&newton_term1_pow=" + newton_term1_pow_opt.value +
                 "&newton_term2_coef=" + newton_term2_coef_opt.value
@@ -757,7 +745,7 @@ function generateRandomName(length) {
 // Cross-platform canvas toBlob function
 !function(t){"use strict";var o,e=t.Uint8Array,n=t.HTMLCanvasElement,s=n&&n.prototype,i=/\s*;\s*base64\s*(?:;|$)/i,a="toDataURL",l=function(t){for(var n,s,i=t.length,a=new e(i/4*3|0),l=0,b=0,r=[0,0],f=0,B=0;i--;)s=t.charCodeAt(l++),255!==(n=o[s-43])&&void 0!==n&&(r[1]=r[0],r[0]=s,B=B<<6|n,4===++f&&(a[b++]=B>>>16,61!==r[1]&&(a[b++]=B>>>8),61!==r[0]&&(a[b++]=B),f=0));return a};e&&(o=new e([62,-1,-1,-1,63,52,53,54,55,56,57,58,59,60,61,-1,-1,-1,0,-1,-1,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,-1,-1,-1,-1,-1,-1,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51])),!n||s.toBlob&&s.toBlobHD||(s.toBlob||(s.toBlob=function(t,o){if(o||(o="image/png"),this.mozGetAsFile)t(this.mozGetAsFile("canvas",o));else if(this.msToBlob&&/^\s*image\/png\s*(?:$|;)/i.test(o))t(this.msToBlob());else{var n,s=Array.prototype.slice.call(arguments,1),b=this[a].apply(this,s),r=b.indexOf(","),f=b.substring(r+1),B=i.test(b.substring(0,r));Blob.fake?((n=new Blob).encoding=B?"base64":"URI",n.data=f,n.size=f.length):e&&(n=B?new Blob([l(f)],{type:o}):new Blob([decodeURIComponent(f)],{type:o})),t(n)}}),!s.toBlobHD&&s.toDataURLHD?s.toBlobHD=function(){a="toDataURLHD";var t=this.toBlob();return a="toDataURL",t}:s.toBlobHD=s.toBlob)}("undefined"!=typeof self&&self||"undefined"!=typeof window&&window||this.content||this);
 // Client-side file saver with custom filenames
-var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof navigator!=="undefined"&&/MSIE [1-9]\./.test(navigator.userAgent)){return}var t=e.document,n=function(){return e.URL||e.webkitURL||e},r=t.createElementNS("http://www.w3.org/1999/xhtml","a"),o="download"in r,a=function(e){var t=new MouseEvent("click");e.dispatchEvent(t)},i=/constructor/i.test(e.HTMLElement)||e.safari,f=/CriOS\/[\d]+/.test(navigator.userAgent),u=function(t){(e.setImmediate||e.setTimeout)(function(){throw t},0)},s="application/octet-stream",d=1e3*40,c=function(e){var t=function(){if(typeof e==="string"){n().revokeObjectURL(e)}else{e.remove()}};setTimeout(t,d)},l=function(e,t,n){t=[].concat(t);var r=t.length;while(r--){var o=e["on"+t[r]];if(typeof o==="function"){try{o.call(e,n||e)}catch(a){u(a)}}}},p=function(e){if(/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type)){return new Blob([String.fromCharCode(65279),e],{type:e.type})}return e},v=function(t,u,d){if(!d){t=p(t)}var v=this,w=t.type,m=w===s,y,h=function(){l(v,"writestart progress write writeend".split(" "))},S=function(){if((f||m&&i)&&e.FileReader){var r=new FileReader;r.onloadend=function(){var t=f?r.result:r.result.replace(/^data:[^;]*;/,"data:attachment/file;");var n=e.open(t,"_blank");if(!n)e.location.href=t;t=undefined;v.readyState=v.DONE;h()};r.readAsDataURL(t);v.readyState=v.INIT;return}if(!y){y=n().createObjectURL(t)}if(m){e.location.href=y}else{var o=e.open(y,"_blank");if(!o){e.location.href=y}}v.readyState=v.DONE;h();c(y)};v.readyState=v.INIT;if(o){y=n().createObjectURL(t);setTimeout(function(){r.href=y;r.download=u;a(r);h();c(y);v.readyState=v.DONE});return}S()},w=v.prototype,m=function(e,t,n){return new v(e,t||e.name||"download",n)};if(typeof navigator!=="undefined"&&navigator.msSaveOrOpenBlob){return function(e,t,n){t=t||e.name||"download";if(!n){e=p(e)}return navigator.msSaveOrOpenBlob(e,t)}}w.abort=function(){};w.readyState=w.INIT=0;w.WRITING=1;w.DONE=2;w.error=w.onwritestart=w.onprogress=w.onwrite=w.onabort=w.onerror=w.onwriteend=null;return m}(typeof self!=="undefined"&&self||typeof window!=="undefined"&&window||this.content);if(typeof module!=="undefined"&&module.exports){module.exports.saveAs=saveAs}else if(typeof define!=="undefined"&&define!==null&&define.amd!==null){define("FileSaver.js",function(){return saveAs})}
+var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof navigator!=="undefined"&&/MSIE [1-9]\./.test(navigator.userAgent)){return}var t=e.document,n=function(){return e.URL||e.webkitURL||e},r=t.createElementNS("http://www.w3.org/1999/xhtml","a"),o="download"in r,a=function(e){var t=new MouseEvent("click");e.dispatchEvent(t)},i=/constructor/i.test(e.HTMLElement)||e.safari,f=/CriOS\/[\d]+/.test(navigator.userAgent),u=function(t){(e.setImmediate||e.setTimeout)(function(){throw t},0)},s="application/octet-stream",d=1e3*40,c=function(e){var t=function(){if(typeof e==="string"){n().revokeObjectURL(e)}else{e.remove()}};setTimeout(t,d)},l=function(e,t,n){t=[].concat(t);var r=t.length;while(r--){var o=e["on"+t[r]];if(typeof o==="function"){try{o.call(e,n||e)}catch(a){u(a)}}}},p=function(e){if(/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type)){return new Blob([String.fromCharCode(65279),e],{type:e.type})}return e},v=function(t,u,d){if(!d){t=p(t)}var v=this,w=t.type,m=w===s,y,h=function(){l(v,"writestart progress write writeend".split(" "))},S=function(){if((f||m&&i)&&e.FileReader){var r=new FileReader;r.onloadend=function(){var t=f?r.result:r.result.replace(/^data:[^;]*;/,"data:attachment/file;");var n=e.open(t,"_blank");if(!n)e.location.href=t;t=undefined;v.readyState=v.DONE;h()};r.readAsDataURL(t);v.readyState=v.INIT;return}if(!y){y=n().createObjectURL(t)}if(m){e.location.href=y}else{var o=e.open(y,"_blank");if(!o){e.location.href=y}}v.readyState=v.DONE;h();c(y)};v.readyState=v.INIT;if(o){y=n().createObjectURL(t);setTimeout(function(){r.href=y;r.download=u;a(r);h();c(y);v.readyState=v.DONE});return}S()},w=v.prototype,m=function(e,t,n){return new v(e,t||e.name||"download",n)};if(typeof navigator!=="undefined"&&navigator.msSaveOrOpenBlob){return function(e,t,n){t=t||e.name||"download";if(!n){e=p(e)}return navigator.msSaveOrOpenBlob(e,t)}}w.abort=function(){};w.readyState=w.INIT=0;w.WRITING=1;w.DONE=2;w.error=w.onwritestart=w.onprogress=w.onwrite=w.onabort=w.onerror=w.onwriteend=null;return m}(typeof self!=="undefined"&&self||typeof window!=="undefined"&&window||this.content);if(typeof module!=="undefined"&&module.exports){module.exports.saveAs=saveAs}else if(typeof define!=="undefined"&&define!==null&&define.amd!==null){define("FileSaver.js",function(){return saveAs})};
 
 (function () {
     type_opt.addEventListener("focus", function (e) {
@@ -775,7 +763,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     iterations_opt.onchange = function () {
         if (iterations_opt.value < 1)
             iterations_opt.value = 1;
-        if (iterations_opt.value > 2000)
+        else if (iterations_opt.value > 2000)
             iterations_opt.value = 2000;
         iterations_opt.value = Math.round(iterations_opt.value);
         generateFractal();
@@ -783,7 +771,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     validity_threshold_opt.onchange = function () {
         if (validity_threshold_opt.value < 1)
             validity_threshold_opt.value = 1;
-        if (validity_threshold_opt.value > 1000)
+        else if (validity_threshold_opt.value > 1000)
             validity_threshold_opt.value = 1000;
         validity_threshold_opt.value = Math.round(validity_threshold_opt.value);
         generateFractal();
@@ -791,7 +779,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     juliet_x_opt.onchange = function () {
         if (juliet_x_opt.value < -1.7)
             juliet_x_opt.value = -1.7;
-        if (juliet_x_opt.value > 0.7)
+        else if (juliet_x_opt.value > 0.7)
             juliet_x_opt.value = 0.7;
         juliet_x_opt.value = Math.round(1000 * juliet_x_opt.value) / 1000;
         generateFractal();
@@ -799,7 +787,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
     juliet_y_opt.onchange = function () {
         if (juliet_y_opt.value < -1)
             juliet_y_opt.value = -1;
-        if (juliet_y_opt.value > 1)
+        else if (juliet_y_opt.value > 1)
             juliet_y_opt.value = 1;
         juliet_y_opt.value = Math.round(1000 * juliet_y_opt.value) / 1000;
         generateFractal();
@@ -808,8 +796,8 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         lyapunov_sequence_opt.value = lyapunov_sequence_opt.value
                 .toUpperCase()
                 .replace(/[^AB]/g, '');
-        if (lyapunov_sequence_opt.value == "") {
-            lyapunov_sequence_opt.value = "ABAB";
+        if (lyapunov_sequence_opt.value === "") {
+            lyapunov_sequence_opt.value = "AABABBB";
         }
         generateFractal();
     };
@@ -824,7 +812,7 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         generateFractal();
     };
     newton_term3_coef_opt.onchange = function () {
-        if (newton_term3_coef_opt.value == 0) {
+        if (newton_term3_coef_opt.value === 0) {
             newton_term3_coef_opt.value = 1;
         }
         newton_term3_coef_opt.value = Math.round(1000 * newton_term3_coef_opt.value) / 1000;
@@ -887,7 +875,6 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
             clickX = e.clientX;
             clickY = e.clientY;
         }
-        printVars(e);
     });
     canvas.addEventListener("mousewheel", debounce(300, function (e) {
         var accumulatedZoom = 0;
@@ -923,20 +910,20 @@ var saveAs=saveAs||function(e){"use strict";if(typeof e==="undefined"||typeof na
         canvas.toBlob(function (blob) {
             saveAs(blob, name + ".png");
         });
-    }
+    };
     if (getURLParameter("shared")) {
         type_opt.value = getURLParameter("type");
         changeTypeOptions();
         iterations_opt.value = parseInt(getURLParameter("iterations"));
         validity_threshold_opt.value = parseInt(getURLParameter("validity_threshold"));
-        if (type_opt.value == fractalOption.JULIET_SET) {
+        if (type_opt.value === fractalOption.JULIET_SET) {
             juliet_x_opt.value = parseFloat(getURLParameter("juliet_x"));
             juliet_y_opt.value = parseFloat(getURLParameter("juliet_y"));
         }
-        if (type_opt.value == fractalOption.LYAPUNOV) {
+        else if (type_opt.value === fractalOption.LYAPUNOV) {
             lyapunov_sequence_opt.value = getURLParameter("lyapunov_sequence");
         }
-        if (type_opt.value == fractalOption.NEWTON) {
+        else if (type_opt.value === fractalOption.NEWTON) {
             newton_term1_coef_opt.value = parseFloat(getURLParameter("newton_term1_coef"));
             newton_term2_coef_opt.value = parseFloat(getURLParameter("newton_term2_coef"));
             newton_term3_coef_opt.value = parseFloat(getURLParameter("newton_term3_coef"));
